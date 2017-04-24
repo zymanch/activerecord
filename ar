@@ -1,0 +1,61 @@
+<?php
+if (!isset($database)) {
+    throw new Exception('Database is not set');
+}
+$files = [];
+$tables = _getTables($database);
+exec('rm -fR '.__DIR__.'/../ar/_base');
+$modelNs = 'ar';
+foreach ($tables as $table => $class) {
+    $generator = new \yii\gii\generators\model\Generator();
+    $generator->setDbConnection($db);
+    $generator->db = $database;
+    $generator->tableName = $table;
+    $generator->modelClass = 'C'.$class;
+    $generator->queryClass = 'C'.$class.'Query';
+    $generator->modelNs = $modelNs.'\\'.$class;
+    foreach ($tables as $relationTableName => $relationClass) {
+        $generator->classNames[$relationTableName] = '\\ar\\'.$relationClass;
+    }
+    $files = array_merge($files, $generator->generate());
+    $originPath = HOME.'ar/'.$class.'.php';
+    if (!file_exists($originPath)) {
+        $file = new \yii\gii\CodeFile($originPath, _getOriginFile($modelNs,$class,'C'.$class));
+        $files[] = $file;
+    }
+    $originQueryPath = HOME.'ar/'.$class.'Query.php';
+    if (!file_exists($originQueryPath)) {
+        $file = new \yii\gii\CodeFile($originQueryPath, _getOriginFile($modelNs, $class.'Query','C'.$class.'Query'));
+        $files[] = $file;
+    }
+}
+/** @var \yii\gii\CodeFile $file */
+foreach ($files as $file) {
+    $success = $file->save();
+    if ($success !== true) {
+        printf("File %s: %s\n",$file->path, $success);
+    } else {
+        printf("File %s: ok\n",$file->path);
+    }
+}
+@exec(sprintf(
+     'git add %s',
+     __DIR__.'/../ar')
+);
+
+function _getTables($database) {
+    global $db;
+    $tables = $db->createCommand('show tables from '.$database)->queryColumn();
+    $result = [];
+    foreach ($tables as $table) {
+        if (!in_array($table,['migration'])) {
+            $result[$table] = implode('', array_map('ucfirst', explode('_', $table)));
+        }
+    }
+    return $result;
+}
+
+function _getOriginFile($namespace, $class, $extends) {
+    return '<?'."php\n\nnamespace $namespace;\n\nuse ar;\n\n".
+        "class $class extends ar\\_base\\$extends {\n\n}";
+}
