@@ -121,9 +121,6 @@ class Query extends Component implements QueryInterface
      * @return Connection
      */
     public static function getDb() {
-        if (!self::$_connection) {
-            self::$_connection = \Core_Registry::db();
-        }
         return self::$_connection;
     }
 
