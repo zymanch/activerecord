@@ -118,6 +118,16 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * @return Connection
+     */
+    public static function getDb() {
+        if (!self::$_connection) {
+            self::$_connection = Core_Registry::db();
+        }
+        return self::$_connection;
+    }
+
+    /**
      * Creates a DB command that can be used to execute this query.
      * @param Connection $db the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
@@ -125,9 +135,9 @@ class Query extends Component implements QueryInterface
      */
     public function createCommand($db = null)
     {
-        list ($sql, $params) = self::$_connection->getQueryBuilder()->build($this);
+        list ($sql, $params) = self::getDb()->getQueryBuilder()->build($this);
 
-        return self::$_connection->createCommand($sql, $params);
+        return self::getDb()->createCommand($sql, $params);
     }
 
     /**
