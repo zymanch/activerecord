@@ -16,5 +16,17 @@ $db->charset = 'utf8';
 \ActiveRecord\db\ActiveRecord::setDb($db);
 \ActiveRecord\db\Query::setDb($db);
 
-$generator = new \ActiveRecord\Generator('shared',$db);
+$sharedDatabase = new \ActiveRecord\GeneratorDatabase('shared');
+$sharedDatabase->addTable('website');
+$sharedDatabase->addTable('rest_query');
+$sharedDatabase->addTable('script_log');
+
+$geoDatabase = new \ActiveRecord\GeneratorDatabase('geoip');
+$geoDatabase->addTable('geo_zone');
+
+$generator = new \ActiveRecord\Generator($db);
+$generator->addDatabase($sharedDatabase);
+$generator->addDatabase($geoDatabase);
+
+
 $generator->generate('model',__DIR__.'/model');

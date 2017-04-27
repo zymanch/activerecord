@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+include(dirname(__FILE__).'/../boot.php');
+
+class ARGenerator extends Core_Module_Display_Console {
+
+    protected $title = 'AR GENERATOR';
+
+    /**
+     * @param $tables Example: shared:website,rest_query,script_log;geoip:geo_zone
+     */
+    public function run($tables) {
+        $tables = explode(';',$tables);
+        $db = Core_Registry::db();
+        $generator = new \ActiveRecord\Generator($db);
+        foreach ($tables as $databaseAndTables) {
+            $databaseAndTables = explode(':',$databaseAndTables,2);
+            $database = $databaseAndTables[0];
+            $tables = array_filter(explode(',',$databaseAndTables[1]));
+            $database = new \ActiveRecord\GeneratorDatabase($database);
+            foreach ($tables as $table) {
+                $database->addTable($table);
+            }
+            $generator->addDatabase($database);
+        }
+        $generator->generate('Model',__DIR__.'/../src/Model');
+    }
+
+}
+new ARGenerator();
