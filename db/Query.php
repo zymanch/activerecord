@@ -122,7 +122,7 @@ class Query extends Component implements QueryInterface
      */
     public static function getDb() {
         if (!self::$_connection) {
-            self::$_connection = Core_Registry::db();
+            self::$_connection = \Core_Registry::db();
         }
         return self::$_connection;
     }

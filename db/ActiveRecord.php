@@ -132,7 +132,7 @@ class ActiveRecord extends BaseActiveRecord
     public static function getDb()
     {
         if (!self::$db) {
-            self::$db = Core_Registry::db();
+            self::$db = \Core_Registry::db();
         }
         return self::$db;
     }

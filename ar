@@ -11,7 +11,7 @@ class ARGenerator extends Core_Module_Display_Console {
      */
     public function run($tables) {
         $tables = explode(';',$tables);
-        $db = Core_Registry::db();
+        $db = \Core_Registry::db();
         $generator = new \ActiveRecord\Generator($db);
         foreach ($tables as $databaseAndTables) {
             $databaseAndTables = explode(':',$databaseAndTables,2);
