@@ -5,11 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mysql;
+namespace ActiveRecord\db\mysql;
 
-use yii\db\Expression;
-use yii\db\TableSchema;
-use yii\db\ColumnSchema;
+use ActiveRecord\db\Expression;
+use ActiveRecord\db\TableSchema;
+use ActiveRecord\db\ColumnSchema;
 
 /**
  * Schema is the class for retrieving metadata from a MySQL database (version 4.1.x and 5.x).
@@ -17,7 +17,7 @@ use yii\db\ColumnSchema;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Schema extends \yii\db\Schema
+class Schema extends \ActiveRecord\db\Schema
 {
     /**
      * @var array mapping from physical column types (keys) to abstract column types (values)

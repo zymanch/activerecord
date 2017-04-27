@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\base;
+namespace ActiveRecord\base;
 
 /**
  * Event is the base class for all event classes.
@@ -67,7 +67,7 @@ class Event extends Object
      *
      * ```php
      * Event::on(ActiveRecord::className(), ActiveRecord::EVENT_AFTER_INSERT, function ($event) {
-     *     Yii::trace(get_class($event->sender) . ' is inserted.');
+     *     ActiveRecord::trace(get_class($event->sender) . ' is inserted.');
      * });
      * ```
      *

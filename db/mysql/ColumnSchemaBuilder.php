@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mysql;
+namespace ActiveRecord\db\mysql;
 
-use yii\db\ColumnSchemaBuilder as AbstractColumnSchemaBuilder;
+use ActiveRecord\db\ColumnSchemaBuilder as AbstractColumnSchemaBuilder;
 
 /**
  * ColumnSchemaBuilder is the schema builder for MySQL databases.

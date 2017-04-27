@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
 /**
  * ViewFinderTrait implements the method getViewNames for finding views in a database.

@@ -5,11 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mysql;
+namespace ActiveRecord\db\mysql;
 
-use yii\base\InvalidParamException;
-use yii\db\Exception;
-use yii\db\Expression;
+use ActiveRecord\base\InvalidParamException;
+use ActiveRecord\db\Exception;
+use ActiveRecord\db\Expression;
 
 /**
  * QueryBuilder is the query builder for MySQL databases.
@@ -17,7 +17,7 @@ use yii\db\Expression;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class QueryBuilder extends \yii\db\QueryBuilder
+class QueryBuilder extends \ActiveRecord\db\QueryBuilder
 {
     /**
      * @var array mapping from abstract column types (keys) to physical column types (values).
@@ -215,7 +215,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
         $names = [];
         $placeholders = [];
         $values = ' DEFAULT VALUES';
-        if ($columns instanceof \yii\db\Query) {
+        if ($columns instanceof \ActiveRecord\db\Query) {
             list($names, $values, $params) = $this->prepareInsertSelectSubQuery($columns, $schema, $params);
         } else {
             foreach ($columns as $name => $value) {
@@ -225,7 +225,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
                     foreach ($value->params as $n => $v) {
                         $params[$n] = $v;
                     }
-                } elseif ($value instanceof \yii\db\Query) {
+                } elseif ($value instanceof \ActiveRecord\db\Query) {
                     list($sql, $params) = $this->build($value, $params);
                     $placeholders[] = "($sql)";
                 } else {

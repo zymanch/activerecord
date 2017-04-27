@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\Object;
+use ActiveRecord\base\Object;
 
 /**
  * BatchQueryResult represents a batch query from which you can retrieve data in batches.

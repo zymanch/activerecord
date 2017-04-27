@@ -5,9 +5,8 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\base;
+namespace ActiveRecord\base;
 
-use Yii;
 
 /**
  * Object is the base class that implements the *property* feature.

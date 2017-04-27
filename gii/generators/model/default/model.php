@@ -3,12 +3,13 @@
  * This is the template for generating the model class of a specified table.
  */
 
-/* @var $this yii\web\View */
-/* @var $generator yii\gii\generators\model\Generator */
+/* @var $this ActiveRecord\web\View */
+/* @var $generator ActiveRecord\gii\generators\model\Generator */
 /* @var $tableName string full table name */
 /* @var $className string class name */
+/* @var $peerName string class name */
 /* @var $queryClassName string query class name */
-/* @var $tableSchema yii\db\TableSchema */
+/* @var $tableSchema ActiveRecord\db\TableSchema */
 /* @var $labels string[] list of attribute labels (name => label) */
 /* @var $rules string[] list of validation rules */
 /* @var $relations array list of relations (name => relation declaration) */
@@ -21,6 +22,9 @@ namespace <?= $generator->ns ?>;
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
  *
+<?php foreach ($tableSchema->columns as $column): ?>
+ * @method <?= $className ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
+<?php endforeach; ?>
 <?php foreach ($tableSchema->columns as $column): ?>
  * @property <?= "{$column->phpType} \${$column->name}\n" ?>
 <?php endforeach; ?>
@@ -56,21 +60,21 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     {
         return [
 <?php foreach ($labels as $name => $label): ?>
-            <?= "'$name' => " . $generator->generateString($label) . ",\n" ?>
+            <?=$peerName;?>::<?= strtoupper($name)." => " . $generator->generateString($label) . ",\n" ?>
 <?php endforeach; ?>
         ];
     }
 <?php foreach ($relations as $name => $relation): ?>
 <?php $parts = explode('\\',$name);?>
     /**
-     * @return \yii\db\ActiveQuery
+     * @return \ActiveRecord\db\ActiveQuery
      */
     <?php if (sizeof($parts) > 1):?>
-    public function get<?= $parts[sizeof($parts)-1] ?>s() {
+public function get<?= $parts[sizeof($parts)-1] ?>s() {
         <?= $relation[0] . "\n" ?>
     }
     <?php else:?>
-    public function get<?= $parts[sizeof($parts)-1] ?>() {
+public function get<?= $parts[sizeof($parts)-1] ?>() {
         <?= $relation[0] . "\n" ?>
     }
     <?php endif;?>

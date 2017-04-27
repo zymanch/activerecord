@@ -5,14 +5,13 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\gii;
+namespace ActiveRecord\gii;
 
-use Yii;
 use ReflectionClass;
-use yii\base\InvalidConfigException;
-use yii\base\Model;
-use yii\helpers\VarDumper;
-use yii\web\View;
+use ActiveRecord\base\InvalidConfigException;
+use ActiveRecord\base\Model;
+use ActiveRecord\helpers\VarDumper;
+use ActiveRecord\web\View;
 
 /**
  * This is the base class for all generator classes.
@@ -49,11 +48,11 @@ abstract class Generator extends Model
      */
     public $template = 'default';
     /**
-     * @var bool whether the strings will be generated using `Yii::t()` or normal strings.
+     * @var bool whether the strings will be generated using `ActiveRecord::t()` or normal strings.
      */
     public $enableI18N = false;
     /**
-     * @var string the message category used by `Yii::t()` when `$enableI18N` is `true`.
+     * @var string the message category used by `ActiveRecord::t()` when `$enableI18N` is `true`.
      * Defaults to `app`.
      */
     public $messageCategory = 'app';
@@ -63,14 +62,16 @@ abstract class Generator extends Model
      * @return string name of the code generator
      */
     abstract public function getName();
+
     /**
      * Generates the code based on the current user input and the specified code template files.
      * This is the main method that child classes should implement.
-     * Please refer to [[\yii\gii\generators\controller\Generator::generate()]] as an example
+     * Please refer to [[\ActiveRecord\gii\generators\controller\Generator::generate()]] as an example
      * on how to implement this method.
+     * @param $path
      * @return CodeFile[] a list of code files to be created.
      */
-    abstract public function generate();
+    abstract public function generate($path);
 
     /**
      * @inheritdoc
@@ -126,9 +127,9 @@ abstract class Generator extends Model
     public function hints()
     {
         return [
-            'enableI18N' => 'This indicates whether the generator should generate strings using <code>Yii::t()</code> method.
+            'enableI18N' => 'This indicates whether the generator should generate strings using <code>ActiveRecord::t()</code> method.
                 Set this to <code>true</code> if you are planning to make your application translatable.',
-            'messageCategory' => 'This is the category used by <code>Yii::t()</code> in case you enable I18N.',
+            'messageCategory' => 'This is the category used by <code>ActiveRecord::t()</code> in case you enable I18N.',
         ];
     }
 
@@ -438,7 +439,7 @@ abstract class Generator extends Model
      * Generates a string depending on enableI18N property
      *
      * @param string $string the text be generated
-     * @param array $placeholders the placeholders to use by `Yii::t()`
+     * @param array $placeholders the placeholders to use by `ActiveRecord::t()`
      * @return string
      */
     public function generateString($string = '', $placeholders = [])
@@ -451,7 +452,7 @@ abstract class Generator extends Model
             } else {
                 $ph = '';
             }
-            $str = "Yii::t('" . $this->messageCategory . "', '" . $string . "'" . $ph . ")";
+            $str = "ActiveRecord::t('" . $this->messageCategory . "', '" . $string . "'" . $ph . ")";
         } else {
             // No I18N, replace placeholders by real words, if any
             if (!empty($placeholders)) {

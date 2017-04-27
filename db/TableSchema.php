@@ -5,10 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\Object;
-use yii\base\InvalidParamException;
+use ActiveRecord\base\Object;
+use ActiveRecord\base\InvalidParamException;
 
 /**
  * TableSchema represents the metadata of a database table.

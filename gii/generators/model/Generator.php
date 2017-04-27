@@ -5,17 +5,16 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\gii\generators\model;
+namespace ActiveRecord\gii\generators\model;
 
-use Yii;
-use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
-use yii\db\Connection;
-use yii\db\Schema;
-use yii\db\TableSchema;
-use yii\gii\CodeFile;
-use yii\helpers\Inflector;
-use yii\base\NotSupportedException;
+use ActiveRecord\db\ActiveQuery;
+use ActiveRecord\db\ActiveRecord;
+use ActiveRecord\db\Connection;
+use ActiveRecord\db\Schema;
+use ActiveRecord\db\TableSchema;
+use ActiveRecord\gii\CodeFile;
+use ActiveRecord\helpers\Inflector;
+use ActiveRecord\base\NotSupportedException;
 
 /**
  * This generator will generate one or multiple ActiveRecord classes for the specified database table.
@@ -23,7 +22,7 @@ use yii\base\NotSupportedException;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Generator extends \yii\gii\Generator
+class Generator extends \ActiveRecord\gii\Generator
 {
     const RELATIONS_NONE = 'none';
     const RELATIONS_ALL = 'all';
@@ -33,14 +32,14 @@ class Generator extends \yii\gii\Generator
     public $db;
     public $tableName;
     public $modelClass;
-    public $baseClass = 'yii\db\ActiveRecord';
+    public $baseClass = 'ActiveRecord\db\ActiveRecord';
     public $generateRelations = self::RELATIONS_ALL;
     public $generateRelationsFromCurrentSchema = true;
     public $generateLabelsFromComments = false;
     public $useTablePrefix = false;
     public $useSchemaName = true;
     public $queryClass;
-    public $queryBaseClass = 'yii\db\ActiveQuery';
+    public $queryBaseClass = 'ActiveRecord\db\ActiveQuery';
     public $classNames;
 
     public $ns = 'ar\_base';
@@ -200,7 +199,7 @@ class Generator extends \yii\gii\Generator
         }
     }
 
-    public function generate()
+    public function generate($path)
     {
         $files = [];
         $relations = $this->generateRelations();
@@ -208,19 +207,21 @@ class Generator extends \yii\gii\Generator
         foreach ($this->getTableNames() as $tableName) {
             // model :
             $modelClassName = $this->generateClassName($tableName);
-            $queryClassName = ($this->generateQuery) ? $this->generateQueryClassName($modelClassName) : false;
+            $queryClassName = $this->generateQueryClassName($modelClassName);
+            $peerClassName = $this->generatePeerClassName($tableName);
             $tableSchema = $db->getTableSchema($tableName);
             $params = [
                 'tableName' => $tableName,
                 'className' => $modelClassName,
+                'peerName'  => $peerClassName,
                 'queryClassName' => '\\'.$this->modelNs.'Query',
                 'tableSchema' => $tableSchema,
                 'labels' => $this->generateLabels($tableSchema),
-                'rules' => $this->generateRules($tableSchema),
+                'rules' => $this->generateRules($tableSchema, $peerClassName),
                 'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
             ];
             $files[] = new CodeFile(
-                HOME.str_replace('\\', '/', $this->ns) . '/' . $modelClassName . '.php',
+                $path . '/_base/' . $modelClassName . '.php',
                 $this->render('model.php', $params)
             );
 
@@ -229,8 +230,16 @@ class Generator extends \yii\gii\Generator
                 $params['className'] = $queryClassName;
                 $params['modelClassName'] = $modelClassName;
                 $files[] = new CodeFile(
-                    HOME.str_replace('\\', '/', $this->queryNs) . '/' . $queryClassName . '.php',
+                    $path . '/_base/' . $queryClassName . '.php',
                     $this->render('query.php', $params)
+                );
+            }
+            if ($peerClassName) {
+                $params['className'] = $peerClassName;
+                $params['modelClassName'] = $modelClassName;
+                $files[] = new CodeFile(
+                    $path . '/_base/' . $peerClassName . '.php',
+                    $this->render('peer.php', $params)
                 );
             }
         }
@@ -240,7 +249,7 @@ class Generator extends \yii\gii\Generator
 
     /**
      * Generates the properties for the specified table.
-     * @param \yii\db\TableSchema $table the table schema
+     * @param \ActiveRecord\db\TableSchema $table the table schema
      * @return array the generated properties (property => type)
      * @since 2.0.6
      */
@@ -268,7 +277,7 @@ class Generator extends \yii\gii\Generator
 
     /**
      * Generates the attribute labels for the specified table.
-     * @param \yii\db\TableSchema $table the table schema
+     * @param \ActiveRecord\db\TableSchema $table the table schema
      * @return array the generated attribute labels (name => label)
      */
     public function generateLabels($table)
@@ -293,10 +302,10 @@ class Generator extends \yii\gii\Generator
 
     /**
      * Generates validation rules for the specified table.
-     * @param \yii\db\TableSchema $table the table schema
+     * @param \ActiveRecord\db\TableSchema $table the table schema
      * @return array the generated validation rules
      */
-    public function generateRules($table)
+    public function generateRules($table, $peerClassName)
     {
         $types = [];
         $lengths = [];
@@ -305,34 +314,34 @@ class Generator extends \yii\gii\Generator
                 continue;
             }
             if (!$column->allowNull && $column->defaultValue === null) {
-                $types['required'][] = $column->name;
+                $types['required'][] = $peerClassName.'::'.strtoupper($column->name);
             }
             switch ($column->type) {
                 case Schema::TYPE_SMALLINT:
                 case Schema::TYPE_INTEGER:
                 case Schema::TYPE_BIGINT:
-                    $types['integer'][] = $column->name;
+                    $types['integer'][] = $peerClassName.'::'.strtoupper($column->name);
                     break;
                 case Schema::TYPE_BOOLEAN:
-                    $types['boolean'][] = $column->name;
+                    $types['boolean'][] = $peerClassName.'::'.strtoupper($column->name);
                     break;
                 case Schema::TYPE_FLOAT:
-                case 'double': // Schema::TYPE_DOUBLE, which is available since Yii 2.0.3
+                case 'double': // Schema::TYPE_DOUBLE, which is available since ActiveRecord 2.0.3
                 case Schema::TYPE_DECIMAL:
                 case Schema::TYPE_MONEY:
-                    $types['number'][] = $column->name;
+                    $types['number'][] = $peerClassName.'::'.strtoupper($column->name);
                     break;
                 case Schema::TYPE_DATE:
                 case Schema::TYPE_TIME:
                 case Schema::TYPE_DATETIME:
                 case Schema::TYPE_TIMESTAMP:
-                    $types['safe'][] = $column->name;
+                    $types['safe'][] = $peerClassName.'::'.strtoupper($column->name);
                     break;
                 default: // strings
                     if ($column->size > 0) {
-                        $lengths[$column->size][] = $column->name;
+                        $lengths[$column->size][] = $peerClassName.'::'.strtoupper($column->name);
                     } else {
-                        $types['string'][] = $column->name;
+                        $types['string'][] = $peerClassName.'::'.strtoupper($column->name);
                     }
             }
         }
@@ -340,12 +349,12 @@ class Generator extends \yii\gii\Generator
         $driverName = $this->getDbDriverName();
         foreach ($types as $type => $columns) {
             if ($driverName === 'pgsql' && $type === 'integer') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], 'default', 'value' => null]";
+                $rules[] = "[[" . implode(", ", $columns) . "], 'default', 'value' => null]";
             }
-            $rules[] = "[['" . implode("', '", $columns) . "'], '$type']";
+            $rules[] = "[[" . implode(", ", $columns) . "], '$type']";
         }
         foreach ($lengths as $length => $columns) {
-            $rules[] = "[['" . implode("', '", $columns) . "'], 'string', 'max' => $length]";
+            $rules[] = "[[" . implode(", ", $columns) . "], 'string', 'max' => $length]";
         }
 
         $db = $this->getDbConnection();
@@ -359,10 +368,11 @@ class Generator extends \yii\gii\Generator
                     $attributesCount = count($uniqueColumns);
 
                     if ($attributesCount === 1) {
-                        $rules[] = "[['" . $uniqueColumns[0] . "'], 'unique']";
+                        $rules[] = "[[" . $peerClassName.'::'.strtoupper($uniqueColumns[0]) . "], 'unique']";
                     } elseif ($attributesCount > 1) {
-                        $columnsList = implode("', '", $uniqueColumns);
-                        $rules[] = "[['$columnsList'], 'unique', 'targetAttribute' => ['$columnsList']]";
+                        $uniqueColumns = array_map('strtoupper',$uniqueColumns);
+                        $columnsList = implode(", $peerClassName::", $uniqueColumns);
+                        $rules[] = "[[$peerClassName::$columnsList], 'unique', 'targetAttribute' => [$peerClassName::$columnsList]]";
                     }
                 }
             }
@@ -379,14 +389,15 @@ class Generator extends \yii\gii\Generator
                 continue;
             }
             $refClassName = $this->generateClassName($refTable);
+            $refPeerName = $this->generatePeerClassName($refTable);
             unset($refs[0]);
-            $attributes = implode("', '", array_keys($refs));
+            $attributes = implode(", $peerClassName::", array_keys($refs));
             $targetAttributes = [];
             foreach ($refs as $key => $value) {
-                $targetAttributes[] = "'$key' => '$value'";
+                $targetAttributes[] = "$peerClassName::".strtoupper($key)." => $refPeerName::".strtoupper($value);
             }
             $targetAttributes = implode(', ', $targetAttributes);
-            $rules[] = "[['$attributes'], 'exist', 'skipOnError' => true, 'targetClass' => $refClassName::className(), 'targetAttribute' => [$targetAttributes]]";
+            $rules[] = "[[$peerClassName::".strtoupper($attributes)."], 'exist', 'skipOnError' => true, 'targetClass' => $refClassName::className(), 'targetAttribute' => [$targetAttributes]]";
         }
 
         return $rules;
@@ -394,7 +405,7 @@ class Generator extends \yii\gii\Generator
 
     /**
      * Generates relations using a junction table by adding an extra viaTable().
-     * @param \yii\db\TableSchema the table being checked
+     * @param \ActiveRecord\db\TableSchema the table being checked
      * @param array $fks obtained from the checkJunctionTable() method
      * @param array $relations
      * @return array modified $relations
@@ -402,7 +413,7 @@ class Generator extends \yii\gii\Generator
     private function generateManyManyRelations($table, $fks, $relations)
     {
         $db = $this->getDbConnection();
-
+        $peerName = $this->generatePeerClassName($table);
         foreach ($fks as $pair) {
             list($firstKey, $secondKey) = $pair;
             $table0 = $firstKey[0];
@@ -410,6 +421,8 @@ class Generator extends \yii\gii\Generator
             unset($firstKey[0], $secondKey[0]);
             $className0 = $this->generateClassName($table0);
             $className1 = $this->generateClassName($table1);
+            $peerName0 = $this->generatePeerClassName($table0);
+            $peerName1 = $this->generatePeerClassName($table1);
             $table0Schema = $db->getTableSchema($table0);
             $table1Schema = $db->getTableSchema($table1);
 
@@ -418,8 +431,8 @@ class Generator extends \yii\gii\Generator
                 continue;
             }
 
-            $link = $this->generateRelationLink(array_flip($secondKey));
-            $viaLink = $this->generateRelationLink($firstKey);
+            $link = $this->generateRelationLink(array_flip($secondKey), $peerName, $peerName0);
+            $viaLink = $this->generateRelationLink($firstKey, $peerName1, $peerName);
             $relationName = $this->generateRelationName($relations, $table0Schema, key($secondKey), true);
             $relations[$table0Schema->fullName][$relationName] = [
                 "return \$this->hasMany($className1::className(), $link)->viaTable('"
@@ -428,8 +441,8 @@ class Generator extends \yii\gii\Generator
                 true,
             ];
 
-            $link = $this->generateRelationLink(array_flip($firstKey));
-            $viaLink = $this->generateRelationLink($secondKey);
+            $link = $this->generateRelationLink(array_flip($firstKey),$peerName,$peerName1);
+            $viaLink = $this->generateRelationLink($secondKey, $peerName0, $peerName);
             $relationName = $this->generateRelationName($relations, $table1Schema, key($firstKey), true);
             $relations[$table1Schema->fullName][$relationName] = [
                 "return \$this->hasMany($className0::className(), $link)->viaTable('"
@@ -491,6 +504,7 @@ class Generator extends \yii\gii\Generator
         foreach ($schemaNames as $schemaName) {
             foreach ($db->getSchema()->getTableSchemas($schemaName) as $table) {
                 $className = $this->generateClassName($table->fullName);
+                $peerName = $this->generatePeerClassName($table->fullName);
                 foreach ($table->foreignKeys as $refs) {
                     $refTable = $refs[0];
                     $refTableSchema = $db->getTableSchema($refTable);
@@ -501,9 +515,9 @@ class Generator extends \yii\gii\Generator
                     unset($refs[0]);
                     $fks = array_keys($refs);
                     $refClassName = $this->generateClassName($refTable);
-
+                    $refPeerName = $this->generatePeerClassName($refTable);
                     // Add relation for this table
-                    $link = $this->generateRelationLink(array_flip($refs));
+                    $link = $this->generateRelationLink(array_flip($refs), $refPeerName, $peerName);
                     $relationName = $this->generateRelationName($relations, $table, $fks[0], false);
                     $relations[$table->fullName][$relationName] = [
                         "return \$this->hasOne($refClassName::className(), $link);",
@@ -513,7 +527,7 @@ class Generator extends \yii\gii\Generator
 
                     // Add relation for the referenced table
                     $hasMany = $this->isHasManyRelation($table, $fks);
-                    $link = $this->generateRelationLink($refs);
+                    $link = $this->generateRelationLink($refs, $peerName, $refPeerName);
                     $relationName = $this->generateRelationName($relations, $refTableSchema, $className, $hasMany);
                     $relations[$refTableSchema->fullName][$relationName] = [
                         "return \$this->" . ($hasMany ? 'hasMany' : 'hasOne') . "($className::className(), $link);",
@@ -611,11 +625,11 @@ class Generator extends \yii\gii\Generator
      * @param array $refs reference constraint
      * @return string the generated link parameter.
      */
-    protected function generateRelationLink($refs)
+    protected function generateRelationLink($refs, $peerName, $refPeerName)
     {
         $pairs = [];
         foreach ($refs as $a => $b) {
-            $pairs[] = "'$a' => '$b'";
+            $pairs[] = $peerName.'::'.strtoupper($a).' => '.$refPeerName.'::'.strtoupper($b);
         }
 
         return '[' . implode(', ', $pairs) . ']';
@@ -623,7 +637,7 @@ class Generator extends \yii\gii\Generator
 
     /**
      * Checks if the given table is a junction table, that is it has at least one pair of unique foreign keys.
-     * @param \yii\db\TableSchema the table being checked
+     * @param \ActiveRecord\db\TableSchema the table being checked
      * @return array|bool all unique foreign key pairs if the table is a junction table,
      * or false if the table is not a junction table.
      */
@@ -665,7 +679,7 @@ class Generator extends \yii\gii\Generator
     /**
      * Generate a relation name for the specified table and a base name.
      * @param array $relations the relations being generated currently.
-     * @param \yii\db\TableSchema $table the table schema
+     * @param \ActiveRecord\db\TableSchema $table the table schema
      * @param string $key a base name that the relation name may be generated from
      * @param bool $multiple whether this is a has-many relation
      * @return string the relation name
@@ -673,7 +687,7 @@ class Generator extends \yii\gii\Generator
     protected function generateRelationName($relations, $table, $key, $multiple)
     {
         static $baseModel;
-        /* @var $baseModel \yii\db\ActiveRecord */
+        /* @var $baseModel \ActiveRecord\db\ActiveRecord */
         if ($baseModel === null) {
             $baseClass = $this->baseClass;
             $baseModel = new $baseClass();
@@ -850,11 +864,12 @@ class Generator extends \yii\gii\Generator
      */
     protected function generateQueryClassName($modelClassName)
     {
-        $queryClassName = $this->queryClass;
-        if (empty($queryClassName) || strpos($this->tableName, '*') !== false) {
-            $queryClassName = $modelClassName . 'Query';
-        }
-        return $queryClassName;
+        return $modelClassName.'Query';
+    }
+
+    protected function generatePeerClassName($table)
+    {
+        return 'C'.$this->generateClassName($table.'_peer');
     }
 
     /**
@@ -871,19 +886,19 @@ class Generator extends \yii\gii\Generator
 
     /**
      * @return string|null driver name of db connection.
-     * In case db is not instance of \yii\db\Connection null will be returned.
+     * In case db is not instance of \ActiveRecord\db\Connection null will be returned.
      * @since 2.0.6
      */
     protected function getDbDriverName()
     {
         /** @var Connection $db */
         $db = $this->getDbConnection();
-        return $db instanceof \yii\db\Connection ? $db->driverName : null;
+        return $db instanceof \ActiveRecord\db\Connection ? $db->driverName : null;
     }
 
     /**
      * Checks if any of the specified columns is auto incremental.
-     * @param \yii\db\TableSchema $table the table schema
+     * @param \ActiveRecord\db\TableSchema $table the table schema
      * @param array $columns columns to check for autoIncrement property
      * @return bool whether any of the specified columns is auto incremental.
      */

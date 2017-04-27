@@ -5,14 +5,13 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use Yii;
-use yii\base\Object;
-use yii\base\NotSupportedException;
-use yii\base\InvalidCallException;
-use yii\caching\Cache;
-use yii\caching\TagDependency;
+use ActiveRecord\base\Object;
+use ActiveRecord\base\NotSupportedException;
+use ActiveRecord\base\InvalidCallException;
+use ActiveRecord\caching\Cache;
+use ActiveRecord\caching\TagDependency;
 
 /**
  * Schema is the base class for concrete DBMS-specific schema classes.
@@ -72,7 +71,7 @@ abstract class Schema extends Object
      * If left part is found in DB error message exception class from the right part is used.
      */
     public $exceptionMap = [
-        'SQLSTATE[23' => 'yii\db\IntegrityException',
+        'SQLSTATE[23' => 'ActiveRecord\db\IntegrityException',
     ];
 
     /**
@@ -94,12 +93,12 @@ abstract class Schema extends Object
 
 
     /**
-     * @return \yii\db\ColumnSchema
-     * @throws \yii\base\InvalidConfigException
+     * @return \ActiveRecord\db\ColumnSchema
+     * @throws \ActiveRecord\base\InvalidConfigException
      */
     protected function createColumnSchema()
     {
-        return new \yii\db\ColumnSchema();
+        return new \ActiveRecord\db\ColumnSchema();
     }
 
     /**
@@ -126,7 +125,7 @@ abstract class Schema extends Object
 
         if ($db->enableSchemaCache && !in_array($name, $db->schemaCacheExclude, true)) {
             /* @var $cache Cache */
-            $cache = is_string($db->schemaCache) ? Yii::$app->get($db->schemaCache, false) : $db->schemaCache;
+            $cache = is_string($db->schemaCache) ? ActiveRecord::$app->get($db->schemaCache, false) : $db->schemaCache;
             if ($cache instanceof Cache) {
                 $key = $this->getCacheKey($name);
                 if ($refresh || ($table = $cache->get($key)) === false) {
@@ -273,7 +272,7 @@ abstract class Schema extends Object
     public function refresh()
     {
         /* @var $cache Cache */
-        $cache = is_string($this->db->schemaCache) ? Yii::$app->get($this->db->schemaCache, false) : $this->db->schemaCache;
+        $cache = is_string($this->db->schemaCache) ? ActiveRecord::$app->get($this->db->schemaCache, false) : $this->db->schemaCache;
         if ($this->db->enableSchemaCache && $cache instanceof Cache) {
             TagDependency::invalidate($cache, $this->getCacheTag());
         }
@@ -293,7 +292,7 @@ abstract class Schema extends Object
         unset($this->_tables[$name]);
         $this->_tableNames = [];
         /* @var $cache Cache */
-        $cache = is_string($this->db->schemaCache) ? Yii::$app->get($this->db->schemaCache, false) : $this->db->schemaCache;
+        $cache = is_string($this->db->schemaCache) ? ActiveRecord::$app->get($this->db->schemaCache, false) : $this->db->schemaCache;
         if ($this->db->enableSchemaCache && $cache instanceof Cache) {
             $cache->delete($this->getCacheKey($name));
         }
@@ -620,7 +619,7 @@ abstract class Schema extends Object
             return $e;
         }
 
-        $exceptionClass = '\yii\db\Exception';
+        $exceptionClass = '\ActiveRecord\db\Exception';
         foreach ($this->exceptionMap as $error => $class) {
             if (strpos($e->getMessage(), $error) !== false) {
                 $exceptionClass = $class;

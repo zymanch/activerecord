@@ -5,15 +5,14 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\base;
+namespace ActiveRecord\base;
 
-use Yii;
 
 /**
  * Component is the base class that implements the *property*, *event* and *behavior* features.
  *
  * Component provides the *event* and *behavior* features, in addition to the *property* feature which is implemented in
- * its parent class [[\yii\base\Object|Object]].
+ * its parent class [[\ActiveRecord\base\Object|Object]].
  *
  * Event is a way to "inject" custom code into existing code at certain places. For example, a comment object can trigger
  * an "add" event when the user adds a comment. We can write custom code and attach it to this event so that when the event
@@ -87,7 +86,7 @@ use Yii;
  * ]
  * ```
  *
- * where `as tree` stands for attaching a behavior named `tree`, and the array will be passed to [[\Yii::createObject()]]
+ * where `as tree` stands for attaching a behavior named `tree`, and the array will be passed to [[\ActiveRecord::createObject()]]
  * to create the behavior object.
  *
  * For more details and usage information on Component, see the [guide article on components](guide:concept-components).

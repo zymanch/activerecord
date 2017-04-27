@@ -5,12 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\base;
+namespace ActiveRecord\base;
 
-use Yii;
-use yii\helpers\ArrayHelper;
-use yii\web\Link;
-use yii\web\Linkable;
+use ActiveRecord\helpers\ArrayHelper;
+use ActiveRecord\web\Link;
+use ActiveRecord\web\Linkable;
 
 /**
  * ArrayableTrait provides a common implementation of the [[Arrayable]] interface.

@@ -5,10 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use Yii;
-use yii\base\InvalidConfigException;
+use ActiveRecord\base\InvalidConfigException;
 
 /**
  * Transaction represents a DB transaction.
@@ -49,7 +48,7 @@ use yii\base\InvalidConfigException;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Transaction extends \yii\base\Object
+class Transaction extends \ActiveRecord\base\Object
 {
     /**
      * A constant representing the transaction isolation level `READ UNCOMMITTED`.

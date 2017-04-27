@@ -5,10 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\Component;
-use yii\di\Instance;
+use ActiveRecord\base\Component;
+use ActiveRecord\di\Instance;
 
 /**
  * Migration is the base class for representing a database migration.

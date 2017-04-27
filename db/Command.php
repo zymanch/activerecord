@@ -5,11 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use Yii;
-use yii\base\Component;
-use yii\base\NotSupportedException;
+use ActiveRecord\base\Component;
+use ActiveRecord\base\NotSupportedException;
 
 /**
  * Command represents a SQL statement to be executed against a database.
@@ -83,7 +82,7 @@ class Command extends Component
      */
     public $queryCacheDuration;
     /**
-     * @var \yii\caching\Dependency the dependency to be associated with the cached query result for this command
+     * @var \ActiveRecord\caching\Dependency the dependency to be associated with the cached query result for this command
      * @see cache()
      */
     public $queryCacheDependency;
@@ -107,7 +106,7 @@ class Command extends Component
      * @param int $duration the number of seconds that query result of this command can remain valid in the cache.
      * If this is not set, the value of [[Connection::queryCacheDuration]] will be used instead.
      * Use 0 to indicate that the cached data will never expire.
-     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached query result.
+     * @param \ActiveRecord\caching\Dependency $dependency the cache dependency associated with the cached query result.
      * @return $this the command object itself
      */
     public function cache($duration = null, $dependency = null)
@@ -421,9 +420,9 @@ class Command extends Component
      * Note that the created command is not executed until [[execute()]] is called.
      *
      * @param string $table the table that new rows will be inserted into.
-     * @param array|\yii\db\Query $columns the column data (name => value) to be inserted into the table or instance
-     * of [[yii\db\Query|Query]] to perform INSERT INTO ... SELECT SQL statement.
-     * Passing of [[yii\db\Query|Query]] is available since version 2.0.11.
+     * @param array|\ActiveRecord\db\Query $columns the column data (name => value) to be inserted into the table or instance
+     * of [[ActiveRecord\db\Query|Query]] to perform INSERT INTO ... SELECT SQL statement.
+     * Passing of [[ActiveRecord\db\Query|Query]] is available since version 2.0.11.
      * @return $this the command object itself
      */
     public function insert($table, $columns)
@@ -581,7 +580,7 @@ class Command extends Component
      * Creates a SQL command for adding a new DB column.
      * @param string $table the table that the new column will be added to. The table name will be properly quoted by the method.
      * @param string $column the name of the new column. The name will be properly quoted by the method.
-     * @param string $type the column type. [[\yii\db\QueryBuilder::getColumnType()]] will be called
+     * @param string $type the column type. [[\ActiveRecord\db\QueryBuilder::getColumnType()]] will be called
      * to convert the give column type to the physical one. For example, `string` will be converted
      * as `varchar(255)`, and `string not null` becomes `varchar(255) not null`.
      * @return $this the command object itself
@@ -624,7 +623,7 @@ class Command extends Component
      * Creates a SQL command for changing the definition of a column.
      * @param string $table the table whose column is to be changed. The table name will be properly quoted by the method.
      * @param string $column the name of the column to be changed. The name will be properly quoted by the method.
-     * @param string $type the column type. [[\yii\db\QueryBuilder::getColumnType()]] will be called
+     * @param string $type the column type. [[\ActiveRecord\db\QueryBuilder::getColumnType()]] will be called
      * to convert the give column type to the physical one. For example, `string` will be converted
      * as `varchar(255)`, and `string not null` becomes `varchar(255) not null`.
      * @return $this the command object itself
@@ -868,7 +867,7 @@ class Command extends Component
         if ($method !== '') {
             $info = $this->db->getQueryCacheInfo($this->queryCacheDuration, $this->queryCacheDependency);
             if (is_array($info)) {
-                /* @var $cache \yii\caching\Cache */
+                /* @var $cache \ActiveRecord\caching\Cache */
                 $cache = $info[0];
                 $cacheKey = [
                     __CLASS__,

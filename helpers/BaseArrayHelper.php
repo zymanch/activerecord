@@ -5,11 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\helpers;
+namespace ActiveRecord\helpers;
 
-use Yii;
-use yii\base\Arrayable;
-use yii\base\InvalidParamException;
+use ActiveRecord\base\Arrayable;
+use ActiveRecord\base\InvalidParamException;
 
 /**
  * BaseArrayHelper provides concrete implementation for [[ArrayHelper]].
@@ -158,17 +157,17 @@ class BaseArrayHelper
      *
      * ```php
      * // working with array
-     * $username = \yii\helpers\ArrayHelper::getValue($_POST, 'username');
+     * $username = \ActiveRecord\helpers\ArrayHelper::getValue($_POST, 'username');
      * // working with object
-     * $username = \yii\helpers\ArrayHelper::getValue($user, 'username');
+     * $username = \ActiveRecord\helpers\ArrayHelper::getValue($user, 'username');
      * // working with anonymous function
-     * $fullName = \yii\helpers\ArrayHelper::getValue($user, function ($user, $defaultValue) {
+     * $fullName = \ActiveRecord\helpers\ArrayHelper::getValue($user, function ($user, $defaultValue) {
      *     return $user->firstName . ' ' . $user->lastName;
      * });
      * // using dot format to retrieve the property of embedded object
-     * $street = \yii\helpers\ArrayHelper::getValue($users, 'address.street');
+     * $street = \ActiveRecord\helpers\ArrayHelper::getValue($users, 'address.street');
      * // using an array of keys to retrieve the value
-     * $value = \yii\helpers\ArrayHelper::getValue($versions, ['1.0', 'date']);
+     * $value = \ActiveRecord\helpers\ArrayHelper::getValue($versions, ['1.0', 'date']);
      * ```
      *
      * @param array|object $array array or object to extract value from
@@ -223,7 +222,7 @@ class BaseArrayHelper
      * ```php
      * // $array = ['type' => 'A', 'options' => [1, 2]];
      * // working with array
-     * $type = \yii\helpers\ArrayHelper::remove($array, 'type');
+     * $type = \ActiveRecord\helpers\ArrayHelper::remove($array, 'type');
      * // $array content
      * // $array = ['options' => [1, 2]];
      * ```
@@ -252,7 +251,7 @@ class BaseArrayHelper
      *
      * ```php
      * $array = ['Bob' => 'Dylan', 'Michael' => 'Jackson', 'Mick' => 'Jagger', 'Janet' => 'Jackson'];
-     * $removed = \yii\helpers\ArrayHelper::removeValue($array, 'Jackson');
+     * $removed = \ActiveRecord\helpers\ArrayHelper::removeValue($array, 'Jackson');
      * // result:
      * // $array = ['Bob' => 'Dylan', 'Mick' => 'Jagger'];
      * // $removed = ['Michael' => 'Jackson', 'Janet' => 'Jackson'];
@@ -597,14 +596,14 @@ class BaseArrayHelper
      * @param bool $valuesOnly whether to encode array values only. If false,
      * both the array keys and array values will be encoded.
      * @param string $charset the charset that the data is using. If not set,
-     * [[\yii\base\Application::charset]] will be used.
+     * [[\ActiveRecord\base\Application::charset]] will be used.
      * @return array the encoded data
      * @see http://www.php.net/manual/en/function.htmlspecialchars.php
      */
     public static function htmlEncode($data, $valuesOnly = true, $charset = null)
     {
         if ($charset === null) {
-            $charset = Yii::$app ? Yii::$app->charset : 'UTF-8';
+            $charset = ActiveRecord::$app ? ActiveRecord::$app->charset : 'UTF-8';
         }
         $d = [];
         foreach ($data as $key => $value) {
@@ -810,20 +809,20 @@ class BaseArrayHelper
      *     'E' => 1,
      * ];
      *
-     * $result = \yii\helpers\ArrayHelper::filter($array, ['A']);
+     * $result = \ActiveRecord\helpers\ArrayHelper::filter($array, ['A']);
      * // $result will be:
      * // [
      * //     'A' => [1, 2],
      * // ]
      *
-     * $result = \yii\helpers\ArrayHelper::filter($array, ['A', 'B.C']);
+     * $result = \ActiveRecord\helpers\ArrayHelper::filter($array, ['A', 'B.C']);
      * // $result will be:
      * // [
      * //     'A' => [1, 2],
      * //     'B' => ['C' => 1],
      * // ]
      *
-     * $result = \yii\helpers\ArrayHelper::filter($array, ['B', '!B.C']);
+     * $result = \ActiveRecord\helpers\ArrayHelper::filter($array, ['B', '!B.C']);
      * // $result will be:
      * // [
      * //     'B' => ['D' => 2],

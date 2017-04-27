@@ -5,9 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\InvalidConfigException;
+use ActiveRecord\base\InvalidConfigException;
+use ActiveRecord\Criteria;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -93,6 +94,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @var array a list of relations that this query should be joined with
      */
     public $joinWith;
+
+    protected $_uniqueId = 0;
 
 
     /**
@@ -381,7 +384,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Order::find()->joinWith('books', true, 'INNER JOIN')->all();
      * // find all orders, eager loading "books", and sort the orders and books by the book names.
      * Order::find()->joinWith([
-     *     'books' => function (\yii\db\ActiveQuery $query) {
+     *     'books' => function (\ActiveRecord\db\ActiveQuery $query) {
      *         $query->orderBy('item.name');
      *     }
      * ])->all();
@@ -793,6 +796,73 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     $this->from[$alias] = $tableName;
                 }
             }
+        }
+        return $this;
+    }
+
+
+    public function __call($name, $params) {
+        if (substr($name,0,8)=='filterBy') {
+            $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 8)));
+            return $this->filterByField(
+                $fieldName,
+                $params[0],
+                isset($params[1]) ? $params[1] : null
+            );
+        }
+        return parent::__call($name, $params);
+    }
+
+    public function filterByField($field, $value, $criteria = null)  {
+        if (is_null($criteria)) {
+            if (is_array($value)) {
+                $criteria = Criteria::IN;
+            } else {
+                $criteria = Criteria::EQUAL;
+            }
+        }
+        switch ($criteria) {
+            case Criteria::IN:
+                $this->andWhere(['IN',$field, $value]);
+                break;
+            case Criteria::EQUAL:
+                $this->andWhere(['=',$field, $value]);
+                break;
+            case Criteria::GREATER_THAN:
+                $this->andWhere(['>',$field, $value]);
+                break;
+            case Criteria::ISNULL:
+                $this->andWhere($field.' is null');
+                break;
+            case Criteria::NOT_EQUAL:;
+                $this->andWhere(['<>',$field, $value]);
+                break;
+            case Criteria::LESS_THAN;
+                $this->andWhere(['<',$field, $value]);
+                break;
+            case Criteria::GREATER_EQUAL;
+                $this->andWhere(['>=',$field, $value]);
+                break;
+            case Criteria::LESS_EQUAL;
+                $this->andWhere(['<=',$field, $value]);
+                break;
+            case Criteria::LIKE;
+                $this->andWhere(['LIKE',$field, $value]);
+                break;
+            case Criteria::NOT_LIKE;
+                $this->andWhere(['NOT LIKE',$field, $value]);
+                break;
+            case Criteria::CUSTOM;
+                $this->andWhere($value);
+                break;
+            case Criteria::NOT_IN;
+                $this->andWhere(['NOT IN',$field, $value]);
+                break;
+            case Criteria::ISNOTNULL;
+                $this->andWhere($field.' is not null');
+                break;
+            default:
+                throw new \Exception('Unknown operator:'.$criteria);
         }
         return $this;
     }

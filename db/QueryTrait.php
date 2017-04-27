@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\NotSupportedException;
+use ActiveRecord\base\NotSupportedException;
 
 /**
  * The BaseQuery trait represents the minimum method set of a database Query.

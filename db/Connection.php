@@ -5,14 +5,13 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
 use PDO;
-use Yii;
-use yii\base\Component;
-use yii\base\InvalidConfigException;
-use yii\base\NotSupportedException;
-use yii\caching\Cache;
+use ActiveRecord\base\Component;
+use ActiveRecord\base\InvalidConfigException;
+use ActiveRecord\base\NotSupportedException;
+use ActiveRecord\caching\Cache;
 
 /**
  * Connection represents a connection to a database via [PDO](http://php.net/manual/en/book.pdo.php).
@@ -33,7 +32,7 @@ use yii\caching\Cache;
  * the DB connection:
  *
  * ```php
- * $connection = new \yii\db\Connection([
+ * $connection = new \ActiveRecord\db\Connection([
  *     'dsn' => $dsn,
  *     'username' => $username,
  *     'password' => $password,
@@ -101,7 +100,7 @@ use yii\caching\Cache;
  * ```php
  * 'components' => [
  *     'db' => [
- *         'class' => '\yii\db\Connection',
+ *         'class' => '\ActiveRecord\db\Connection',
  *         'dsn' => 'mysql:host=127.0.0.1;dbname=demo',
  *         'username' => 'root',
  *         'password' => '',
@@ -249,7 +248,7 @@ class Connection extends Component
     public $tablePrefix = '';
 
     /**
-     * @var string Custom PDO wrapper class. If not set, it will use [[PDO]] or [[\yii\db\mssql\PDO]] when MSSQL is used.
+     * @var string Custom PDO wrapper class. If not set, it will use [[PDO]] or [[\ActiveRecord\db\mssql\PDO]] when MSSQL is used.
      * @see pdo
      */
     public $pdoClass;
@@ -259,7 +258,7 @@ class Connection extends Component
      * @see createCommand
      * @since 2.0.7
      */
-    public $commandClass = 'yii\db\Command';
+    public $commandClass = 'ActiveRecord\db\Command';
     /**
      * @var bool whether to enable [savepoint](http://en.wikipedia.org/wiki/Savepoint).
      * Note that if the underlying DBMS does not support savepoint, setting this property to be true will have no effect.
@@ -395,7 +394,7 @@ class Connection extends Component
      * @param int $duration the number of seconds that query results can remain valid in the cache. If this is
      * not set, the value of [[queryCacheDuration]] will be used instead.
      * Use 0 to indicate that the cached data will never expire.
-     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached query results.
+     * @param \ActiveRecord\caching\Dependency $dependency the cache dependency associated with the cached query results.
      * @return mixed the return result of the callable
      * @throws \Exception|\Throwable if there is any exception during query
      * @see enableQueryCache
@@ -462,7 +461,7 @@ class Connection extends Component
      * Returns the current query cache information.
      * This method is used internally by [[Command]].
      * @param int $duration the preferred caching duration. If null, it will be ignored.
-     * @param \yii\caching\Dependency $dependency the preferred caching dependency. If null, it will be ignored.
+     * @param \ActiveRecord\caching\Dependency $dependency the preferred caching dependency. If null, it will be ignored.
      * @return array the current query cache information, or null if query cache is not enabled.
      * @internal
      */
@@ -483,8 +482,8 @@ class Connection extends Component
         }
 
         if ($duration === 0 || $duration > 0) {
-            if (is_string($this->queryCache) && Yii::$app) {
-                $cache = Yii::$app->get($this->queryCache, false);
+            if (is_string($this->queryCache) && ActiveRecord::$app) {
+                $cache = ActiveRecord::$app->get($this->queryCache, false);
             } else {
                 $cache = $this->queryCache;
             }
@@ -575,9 +574,9 @@ class Connection extends Component
             }
             if (isset($driver)) {
                 if ($driver === 'mssql' || $driver === 'dblib') {
-                    $pdoClass = 'yii\db\mssql\PDO';
+                    $pdoClass = 'ActiveRecord\db\mssql\PDO';
                 } elseif ($driver === 'sqlsrv') {
-                    $pdoClass = 'yii\db\mssql\SqlsrvPDO';
+                    $pdoClass = 'ActiveRecord\db\mssql\SqlsrvPDO';
                 }
             }
         }
@@ -681,7 +680,7 @@ class Connection extends Component
     /**
      * Rolls back given [[Transaction]] object if it's still active and level match.
      * In some cases rollback can fail, so this method is fail safe. Exception thrown
-     * from rollback will be caught and just logged with [[\Yii::error()]].
+     * from rollback will be caught and just logged with [[\ActiveRecord::error()]].
      * @param Transaction $transaction Transaction object given from [[beginTransaction()]].
      * @param int $level Transaction level just after [[beginTransaction()]] call.
      */
@@ -707,7 +706,7 @@ class Connection extends Component
         if ($this->_schema !== null) {
             return $this->_schema;
         } else {
-            $this->_schema = new \yii\db\mysql\Schema();
+            $this->_schema = new \ActiveRecord\db\mysql\Schema();
             $this->_schema->db = $this;
             return $this->_schema;
         }
@@ -972,7 +971,7 @@ class Connection extends Component
             $sharedConfig['class'] = get_class($this);
         }
 
-        $cache = is_string($this->serverStatusCache) ? Yii::$app->get($this->serverStatusCache, false) : $this->serverStatusCache;
+        $cache = is_string($this->serverStatusCache) ? ActiveRecord::$app->get($this->serverStatusCache, false) : $this->serverStatusCache;
 
         foreach ($pool as $config) {
             $config = array_merge($sharedConfig, $config);

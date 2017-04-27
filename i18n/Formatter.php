@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\i18n;
+namespace ActiveRecord\i18n;
 
 use DateInterval;
 use DateTime;
@@ -13,13 +13,12 @@ use DateTimeInterface;
 use DateTimeZone;
 use IntlDateFormatter;
 use NumberFormatter;
-use Yii;
-use yii\base\Component;
-use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
-use yii\helpers\FormatConverter;
-use yii\helpers\HtmlPurifier;
-use yii\helpers\Html;
+use ActiveRecord\base\Component;
+use ActiveRecord\base\InvalidConfigException;
+use ActiveRecord\base\InvalidParamException;
+use ActiveRecord\helpers\FormatConverter;
+use ActiveRecord\helpers\HtmlPurifier;
+use ActiveRecord\helpers\Html;
 
 /**
  * Formatter provides a set of commonly used data formatting methods.
@@ -28,8 +27,8 @@ use yii\helpers\Html;
  * The behavior of some of them may be configured via the properties of Formatter. For example,
  * by configuring [[dateFormat]], one may control how [[asDate()]] formats the value into a date string.
  *
- * Formatter is configured as an application component in [[\yii\base\Application]] by default.
- * You can access that instance via `Yii::$app->formatter`.
+ * Formatter is configured as an application component in [[\ActiveRecord\base\Application]] by default.
+ * You can access that instance via `ActiveRecord::$app->formatter`.
  *
  * The Formatter class is designed to format values according to a [[locale]]. For this feature to work
  * the [PHP intl extension](http://php.net/manual/en/book.intl.php) has to be installed.
@@ -63,7 +62,7 @@ class Formatter extends Component
      * @var string the locale ID that is used to localize the date and number formatting.
      * For number and date formatting this is only effective when the
      * [PHP intl extension](http://php.net/manual/en/book.intl.php) is installed.
-     * If not set, [[\yii\base\Application::language]] will be used.
+     * If not set, [[\ActiveRecord\base\Application::language]] will be used.
      */
     public $locale;
     /**
@@ -72,7 +71,7 @@ class Formatter extends Component
      * This can be any value that may be passed to [date_default_timezone_set()](http://www.php.net/manual/en/function.date-default-timezone-set.php)
      * e.g. `UTC`, `Europe/Berlin` or `America/Chicago`.
      * Refer to the [php manual](http://www.php.net/manual/en/timezones.php) for available time zones.
-     * If this property is not set, [[\yii\base\Application::timeZone]] will be used.
+     * If this property is not set, [[\ActiveRecord\base\Application::timeZone]] will be used.
      *
      * Note that the default time zone for input data is assumed to be UTC by default if no time zone is included in the input date value.
      * If you store your data in a different time zone in the database, you have to adjust [[defaultTimeZone]] accordingly.
@@ -263,13 +262,13 @@ class Formatter extends Component
     public function init()
     {
         if ($this->timeZone === null) {
-            $this->timeZone = Yii::$app->timeZone;
+            $this->timeZone = ActiveRecord::$app->timeZone;
         }
         if ($this->locale === null) {
-            $this->locale = Yii::$app->language;
+            $this->locale = ActiveRecord::$app->language;
         }
         if ($this->booleanFormat === null) {
-            $this->booleanFormat = [Yii::t('yii', 'No', [], $this->locale), Yii::t('yii', 'Yes', [], $this->locale)];
+            $this->booleanFormat = [ActiveRecord::t('yii', 'No', [], $this->locale), ActiveRecord::t('yii', 'Yes', [], $this->locale)];
         }
         if ($this->nullDisplay === null) {
             $this->nullDisplay = '<span class="not-set">' .  '(not set)' . '</span>';

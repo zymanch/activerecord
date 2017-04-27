@@ -5,20 +5,20 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\InvalidConfigException;
-use yii\base\Model;
-use yii\base\InvalidParamException;
-use yii\base\NotSupportedException;
-use yii\base\UnknownMethodException;
-use yii\base\InvalidCallException;
-use yii\helpers\ArrayHelper;
+use ActiveRecord\base\InvalidConfigException;
+use ActiveRecord\base\Model;
+use ActiveRecord\base\InvalidParamException;
+use ActiveRecord\base\NotSupportedException;
+use ActiveRecord\base\UnknownMethodException;
+use ActiveRecord\base\InvalidCallException;
+use ActiveRecord\helpers\ArrayHelper;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
- * See [[\yii\db\ActiveRecord]] for a concrete implementation.
+ * See [[\ActiveRecord\db\ActiveRecord]] for a concrete implementation.
  *
  * @property array $dirtyAttributes The changed attribute values (name-value pairs). This property is
  * read-only.
@@ -226,7 +226,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      * This method is overridden so that attributes and related objects can be accessed like properties.
      *
      * @param string $name property name
-     * @throws \yii\base\InvalidParamException if relation name is wrong
+     * @throws \ActiveRecord\base\InvalidParamException if relation name is wrong
      * @return mixed property value
      * @see getAttribute()
      */
@@ -866,7 +866,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      * already the new, updated values.
      *
      * Note that no automatic type conversion performed by default. You may use
-     * [[\yii\behaviors\AttributeTypecastBehavior]] to facilitate attribute typecasting.
+     * [[\ActiveRecord\behaviors\AttributeTypecastBehavior]] to facilitate attribute typecasting.
      * See http://www.yiiframework.com/doc-2.0/guide-db-active-record.html#attributes-typecasting.
      */
     public function afterSave($insert, $changedAttributes)

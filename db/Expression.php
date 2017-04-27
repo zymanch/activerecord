@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
 /**
  * Expression represents a DB expression that does not need escaping or quoting.
@@ -16,7 +16,7 @@ namespace yii\db;
  *
  * ```php
  * $expression = new Expression('NOW()');
- * $now = (new \yii\db\Query)->select($expression)->scalar();  // SELECT NOW();
+ * $now = (new \ActiveRecord\db\Query)->select($expression)->scalar();  // SELECT NOW();
  * echo $now; // prints the current date
  * ```
  *
@@ -28,7 +28,7 @@ namespace yii\db;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Expression extends \yii\base\Object
+class Expression extends \ActiveRecord\base\Object
 {
     /**
      * @var string the DB expression

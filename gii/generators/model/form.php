@@ -1,10 +1,10 @@
 <?php
 
-use yii\gii\generators\model\Generator;
+use ActiveRecord\gii\generators\model\Generator;
 
-/* @var $this yii\web\View */
-/* @var $form yii\widgets\ActiveForm */
-/* @var $generator yii\gii\generators\model\Generator */
+/* @var $this ActiveRecord\web\View */
+/* @var $form ActiveRecord\widgets\ActiveForm */
+/* @var $generator ActiveRecord\gii\generators\model\Generator */
 
 echo $form->field($generator, 'tableName')->textInput(['table_prefix' => $generator->getTablePrefix()]);
 echo $form->field($generator, 'modelClass');

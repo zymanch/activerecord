@@ -5,9 +5,8 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\helpers;
+namespace ActiveRecord\helpers;
 
-use Yii;
 
 /**
  * BaseInflector provides concrete implementation for [[Inflector]].

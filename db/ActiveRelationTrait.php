@@ -5,10 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
+use ActiveRecord\base\InvalidConfigException;
+use ActiveRecord\base\InvalidParamException;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.

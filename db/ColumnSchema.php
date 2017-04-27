@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\Object;
+use ActiveRecord\base\Object;
 
 /**
  * ColumnSchema class describes the metadata of a column in a database table.

@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\base;
+namespace ActiveRecord\base;
 
 /**
  * Configurable is the interface that should be implemented by classes who support configuring
@@ -20,7 +20,7 @@ namespace yii\base;
  *
  * That is, the last parameter of the constructor must accept a configuration array.
  *
- * This interface is mainly used by [[\yii\di\Container]] so that it can pass object configuration as the
+ * This interface is mainly used by [[\ActiveRecord\di\Container]] so that it can pass object configuration as the
  * last parameter to the implementing class' constructor.
  *
  * For more details and usage information on Configurable, see the [guide article on configurations](guide:concept-configurations).

@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace ActiveRecord\db;
 
-use yii\base\InvalidCallException;
+use ActiveRecord\base\InvalidCallException;
 
 /**
  * DataReader represents a forward-only stream of rows from a query result set.
@@ -48,7 +48,7 @@ use yii\base\InvalidCallException;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class DataReader extends \yii\base\Object implements \Iterator, \Countable
+class DataReader extends \ActiveRecord\base\Object implements \Iterator, \Countable
 {
     /**
      * @var \PDOStatement the PDOStatement associated with the command

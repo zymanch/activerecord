@@ -1,11 +1,11 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link http://www.ActiveRecordframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\helpers;
+namespace ActiveRecord\helpers;
 
 /**
  * ArrayHelper provides additional array functionality that you can use in your

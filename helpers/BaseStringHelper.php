@@ -5,9 +5,8 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\helpers;
+namespace ActiveRecord\helpers;
 
-use Yii;
 
 /**
  * BaseStringHelper provides concrete implementation for [[StringHelper]].
@@ -152,7 +151,7 @@ class BaseStringHelper
     protected static function truncateHtml($string, $count, $suffix, $encoding = false)
     {
         $config = \HTMLPurifier_Config::create(null);
-        $config->set('Cache.SerializerPath', \Yii::$app->getRuntimePath());
+        $config->set('Cache.SerializerPath', \ActiveRecord::$app->getRuntimePath());
         $lexer = \HTMLPurifier_Lexer::create($config);
         $tokens = $lexer->tokenizeHTML($string, $config, new \HTMLPurifier_Context());
         $openTokens = [];
