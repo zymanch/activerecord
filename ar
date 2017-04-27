@@ -16,7 +16,11 @@ class ARGenerator extends Core_Module_Display_Console {
         foreach ($tables as $databaseAndTables) {
             $databaseAndTables = explode(':',$databaseAndTables,2);
             $database = $databaseAndTables[0];
-            $tables = array_filter(explode(',',$databaseAndTables[1]));
+            if (isset($databaseAndTables[1])) {
+                $tables = array_filter(explode(',', $databaseAndTables[1]));
+            } else {
+                $tables = $this->_getTables($db, $database);
+            }
             $database = new \ActiveRecord\GeneratorDatabase($database);
             foreach ($tables as $table) {
                 $database->addTable($table);
@@ -24,6 +28,10 @@ class ARGenerator extends Core_Module_Display_Console {
             $generator->addDatabase($database);
         }
         $generator->generate('Model',__DIR__.'/../src/Model');
+    }
+
+    protected function _getTables($db, $database) {
+        return $db->createCommand('show tables from '.$database)->queryColumn();
     }
 
 }
