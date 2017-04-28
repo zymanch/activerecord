@@ -8,6 +8,7 @@ $db->dsn = 'mysql:host=sanddb.gtflixtv.com;dbname=shared';
 $db->username = 'develop';
 $db->password = 'develop@box';
 $db->charset = 'utf8';
+$db->schemaCache = Core_Registry::cache();
 ```
 
 provide it to ActiveRecord classes:

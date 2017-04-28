@@ -14,23 +14,19 @@
 /* @var $className string class name */
 /* @var $modelClassName string related model class name */
 
-$modelFullClassName = $modelClassName;
-if ($generator->ns !== $generator->queryNs) {
-    $modelFullClassName = '\\' . $generator->ns . '\\' . $modelFullClassName;
-}
-
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->queryNs ?>;
+namespace <?= $ns.'\\'.$sub ?>;
 
 
 /**
- * This is the ActiveQuery class for [[<?= $modelFullClassName ?>]].
- *
- * @see <?= $modelFullClassName . "\n" ?>
+ * This is the ActiveQuery class for [[<?= $ns.'\\'.$mainClassName ?>]].
+<?php foreach ($tableSchema->columns as $column): ?>
+ * @method <?= $className ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
+<?php endforeach; ?>
  */
-class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
+class <?= $queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
 {
     /*public function active()
     {
@@ -39,7 +35,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\
 
     /**
      * @inheritdoc
-     * @return <?= $modelFullClassName ?>[]|array
+     * @return \<?= $ns.'\\'.$mainClassName ?>[]|array
      */
     public function all($db = null)
     {
@@ -48,7 +44,7 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\
 
     /**
      * @inheritdoc
-     * @return <?= $modelFullClassName ?>|array|null
+     * @return \<?= $ns.'\\'.$mainClassName ?>|array|null
      */
     public function one($db = null)
     {
@@ -56,10 +52,10 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\
     }
 
     /**
-     * @return <?= $className ?>
+     * @return \<?= $ns.'\\'.$mainQueryClassName ?>
      */
-    public function model()
+    public static function model()
     {
-        return new self(<?= $modelFullClassName;?>::class);
+        return new \<?=$ns.'\\'.$mainQueryClassName;?>(\<?= $ns.'\\'.$mainClassName;?>::class);
     }
 }

@@ -79,17 +79,4 @@ class FilterValidator extends Validator
         }
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getClientOptions($model, $attribute)
-    {
-        $options = [];
-        if ($this->skipOnEmpty) {
-            $options['skipOnEmpty'] = 1;
-        }
-
-        return $options;
-    }
 }

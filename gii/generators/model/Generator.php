@@ -24,28 +24,18 @@ use ActiveRecord\base\NotSupportedException;
  */
 class Generator extends \ActiveRecord\gii\Generator
 {
-    const RELATIONS_NONE = 'none';
-    const RELATIONS_ALL = 'all';
-    const RELATIONS_ALL_INVERSE = 'all-inverse';
 
     protected $_connect;
-    public $db;
-    public $tableName;
-    public $modelClass;
     public $baseClass = 'ActiveRecord\db\ActiveRecord';
-    public $generateRelations = self::RELATIONS_ALL;
-    public $generateRelationsFromCurrentSchema = true;
     public $generateLabelsFromComments = false;
-    public $useTablePrefix = false;
-    public $useSchemaName = true;
     public $queryClass;
     public $queryBaseClass = 'ActiveRecord\db\ActiveQuery';
     public $classNames;
 
-    public $ns = 'ar\_base';
-    public $generateQuery = true;
-    public $queryNs = 'ar\_base';
-    public $modelNs;
+    public $sub;
+    public $ns;
+
+    public $path;
 
 
     /**
@@ -70,177 +60,76 @@ class Generator extends \ActiveRecord\gii\Generator
     public function rules()
     {
         return array_merge(parent::rules(), [
-            [['ns', 'tableName', 'modelClass', 'baseClass', 'queryNs', 'queryClass', 'queryBaseClass'], 'filter', 'filter' => 'trim'],
-            [['ns', 'queryNs'], 'filter', 'filter' => function ($value) { return trim($value, '\\'); }],
+            [['ns', 'baseClass', 'queryBaseClass'], 'filter', 'filter' => 'trim'],
+            [['ns'], 'filter', 'filter' => function ($value) { return trim($value, '\\'); }],
 
-            [['ns', 'tableName', 'baseClass', 'queryNs', 'queryBaseClass'], 'required'],
-            [['modelClass', 'queryClass'], 'match', 'pattern' => '/^\w+$/', 'message' => 'Only word characters are allowed.'],
-            [['ns', 'baseClass', 'queryNs', 'queryBaseClass'], 'match', 'pattern' => '/^[\w\\\\]+$/', 'message' => 'Only word characters and backslashes are allowed.'],
-            [['tableName'], 'match', 'pattern' => '/^([\w ]+\.)?([\w\* ]+)$/', 'message' => 'Only word characters, and optionally spaces, an asterisk and/or a dot are allowed.'],
-            [['tableName'], 'validateTableName'],
-            [['modelClass'], 'validateModelClass', 'skipOnEmpty' => false],
+            [['ns', 'sub','baseClass', 'queryBaseClass','path','mainPath'], 'required'],
+            [['ns', 'baseClass', 'queryBaseClass'], 'match', 'pattern' => '/^[\w\\\\]+$/', 'message' => 'Only word characters and backslashes are allowed.'],
             [['baseClass'], 'validateClass', 'params' => ['extends' => ActiveRecord::className()]],
             [['queryBaseClass'], 'validateClass', 'params' => ['extends' => ActiveQuery::className()]],
-            [['generateRelations'], 'in', 'range' => [self::RELATIONS_NONE, self::RELATIONS_ALL, self::RELATIONS_ALL_INVERSE]],
-            [['generateLabelsFromComments', 'useTablePrefix', 'useSchemaName', 'generateQuery', 'generateRelationsFromCurrentSchema'], 'boolean'],
+            [['generateLabelsFromComments'], 'boolean'],
             [['enableI18N'], 'boolean'],
             [['messageCategory'], 'validateMessageCategory', 'skipOnEmpty' => false],
         ]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return array_merge(parent::attributeLabels(), [
-            'ns' => 'Namespace',
-            'tableName' => 'Table Name',
-            'modelClass' => 'Model Class Name',
-            'baseClass' => 'Base Class',
-            'generateRelations' => 'Generate Relations',
-            'generateRelationsFromCurrentSchema' => 'Generate Relations from Current Schema',
-            'generateLabelsFromComments' => 'Generate Labels from DB Comments',
-            'generateQuery' => 'Generate ActiveQuery',
-            'queryNs' => 'ActiveQuery Namespace',
-            'queryClass' => 'ActiveQuery Class',
-            'queryBaseClass' => 'ActiveQuery Base Class',
-            'useSchemaName' => 'Use Schema Name',
-        ]);
-    }
 
-    /**
-     * @inheritdoc
-     */
-    public function hints()
-    {
-        return array_merge(parent::hints(), [
-            'ns' => 'This is the namespace of the ActiveRecord class to be generated, e.g., <code>app\models</code>',
-            'tableName' => 'This is the name of the DB table that the new ActiveRecord class is associated with, e.g. <code>post</code>.
-                The table name may consist of the DB schema part if needed, e.g. <code>public.post</code>.
-                The table name may end with asterisk to match multiple table names, e.g. <code>tbl_*</code>
-                will match tables who name starts with <code>tbl_</code>. In this case, multiple ActiveRecord classes
-                will be generated, one for each matching table name; and the class names will be generated from
-                the matching characters. For example, table <code>tbl_post</code> will generate <code>Post</code>
-                class.',
-            'modelClass' => 'This is the name of the ActiveRecord class to be generated. The class name should not contain
-                the namespace part as it is specified in "Namespace". You do not need to specify the class name
-                if "Table Name" ends with asterisk, in which case multiple ActiveRecord classes will be generated.',
-            'baseClass' => 'This is the base class of the new ActiveRecord class. It should be a fully qualified namespaced class name.',
-            'generateRelations' => 'This indicates whether the generator should generate relations based on
-                foreign key constraints it detects in the database. Note that if your database contains too many tables,
-                you may want to uncheck this option to accelerate the code generation process.',
-            'generateRelationsFromCurrentSchema' => 'This indicates whether the generator should generate relations from current schema or from all available schemas.',
-            'generateLabelsFromComments' => 'This indicates whether the generator should generate attribute labels
-                by using the comments of the corresponding DB columns.',
-            'useTablePrefix' => 'This indicates whether the table name returned by the generated ActiveRecord class
-                should consider the <code>tablePrefix</code> setting of the DB connection. For example, if the
-                table name is <code>tbl_post</code> and <code>tablePrefix=tbl_</code>, the ActiveRecord class
-                will return the table name as <code>{{%post}}</code>.',
-            'useSchemaName' => 'This indicates whether to include the schema name in the ActiveRecord class
-                when it\'s auto generated. Only non default schema would be used.',
-            'generateQuery' => 'This indicates whether to generate ActiveQuery for the ActiveRecord class.',
-            'queryNs' => 'This is the namespace of the ActiveQuery class to be generated, e.g., <code>app\models</code>',
-            'queryClass' => 'This is the name of the ActiveQuery class to be generated. The class name should not contain
-                the namespace part as it is specified in "ActiveQuery Namespace". You do not need to specify the class name
-                if "Table Name" ends with asterisk, in which case multiple ActiveQuery classes will be generated.',
-            'queryBaseClass' => 'This is the base class of the new ActiveQuery class. It should be a fully qualified namespaced class name.',
-        ]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function autoCompleteData()
-    {
-        $db = $this->getDbConnection();
-        if ($db !== null) {
-            return [
-                'tableName' => function () use ($db) {
-                    return $db->getSchema()->getTableNames();
-                },
-            ];
-        } else {
-            return [];
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function requiredTemplates()
-    {
-        // @todo make 'query.php' to be required before 2.1 release
-        return ['model.php'/*, 'query.php'*/];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function stickyAttributes()
-    {
-        return array_merge(parent::stickyAttributes(), ['ns', 'db', 'baseClass', 'generateRelations', 'generateLabelsFromComments', 'queryNs', 'queryBaseClass']);
-    }
-
-    /**
-     * Returns the `tablePrefix` property of the DB connection as specified
-     *
-     * @return string
-     * @since 2.0.5
-     * @see getDbConnection
-     */
-    public function getTablePrefix()
-    {
-        $db = $this->getDbConnection();
-        if ($db !== null) {
-            return $db->tablePrefix;
-        } else {
-            return '';
-        }
-    }
-
-    public function generate($path)
+    public function generate()
     {
         $files = [];
         $relations = $this->generateRelations();
+        $relations = array_filter($relations);
         $db = $this->getDbConnection();
         foreach ($this->getTableNames() as $tableName) {
             // model :
+            $mainModelClassName = $this->generateMainClassName($tableName);
             $modelClassName = $this->generateClassName($tableName);
-            $queryClassName = $this->generateQueryClassName($modelClassName);
+            $queryClassName = $this->generateQueryClassName($tableName);
+            $mainQueryClassName = $this->generateMainQueryClassName($tableName);
             $peerClassName = $this->generatePeerClassName($tableName);
             $tableSchema = $db->getTableSchema($tableName);
             $params = [
                 'tableName' => $tableName,
                 'className' => $modelClassName,
-                'peerName'  => $peerClassName,
-                'queryClassName' => '\\'.$this->modelNs.'Query',
+                'mainClassName' => $mainModelClassName,
+                'queryClassName' => $queryClassName,
+                'mainQueryClassName' => $mainQueryClassName,
+                'sub' => $this->sub,
+                'ns' => $this->ns,
+                'peerClassName'  => $peerClassName,
                 'tableSchema' => $tableSchema,
                 'labels' => $this->generateLabels($tableSchema),
                 'rules' => $this->generateRules($tableSchema, $peerClassName),
                 'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
             ];
             $files[] = new CodeFile(
-                $path . '/_base/' . $modelClassName . '.php',
+                $this->path .'/'.$this->sub. '/' . $modelClassName . '.php',
                 $this->render('model.php', $params)
             );
 
-            // query :
-            if ($queryClassName) {
-                $params['className'] = $queryClassName;
-                $params['modelClassName'] = $modelClassName;
-                $files[] = new CodeFile(
-                    $path . '/_base/' . $queryClassName . '.php',
-                    $this->render('query.php', $params)
+            $files[] = new CodeFile(
+                $this->path.'/'.$this->sub . '/' . $queryClassName . '.php',
+                $this->render('query.php', $params)
+            );
+            $files[] = new CodeFile(
+                $this->path.'/'.$this->sub . '/' . $peerClassName . '.php',
+                $this->render('peer.php', $params)
+            );
+            $originPath = $this->path.'/'.$mainModelClassName.'.php';
+            if (!file_exists($originPath)) {
+                $file = new CodeFile(
+                    $originPath,
+                    $this->render('mainModel.php', $params)
                 );
+                $files[] = $file;
             }
-            if ($peerClassName) {
-                $params['className'] = $peerClassName;
-                $params['modelClassName'] = $modelClassName;
-                $files[] = new CodeFile(
-                    $path . '/_base/' . $peerClassName . '.php',
-                    $this->render('peer.php', $params)
+            $originQueryPath = $this->path.'/'.$mainQueryClassName.'.php';
+            if (!file_exists($originQueryPath)) {
+                $file = new CodeFile(
+                    $originQueryPath,
+                    $this->render('mainQuery.php', $params)
                 );
+                $files[] = $file;
             }
         }
 
@@ -388,6 +277,9 @@ class Generator extends \ActiveRecord\gii\Generator
                 // Foreign key could point to non-existing table: https://github.com/yiisoft/yii2-gii/issues/34
                 continue;
             }
+            if (!isset($this->classNames[$refTable])) {
+                continue;
+            }
             $refClassName = $this->generateClassName($refTable);
             $refPeerName = $this->generatePeerClassName($refTable);
             unset($refs[0]);
@@ -405,7 +297,7 @@ class Generator extends \ActiveRecord\gii\Generator
 
     /**
      * Generates relations using a junction table by adding an extra viaTable().
-     * @param \ActiveRecord\db\TableSchema the table being checked
+     * @param \ActiveRecord\db\TableSchema $table the table being checked
      * @param array $fks obtained from the checkJunctionTable() method
      * @param array $relations
      * @return array modified $relations
@@ -413,7 +305,7 @@ class Generator extends \ActiveRecord\gii\Generator
     private function generateManyManyRelations($table, $fks, $relations)
     {
         $db = $this->getDbConnection();
-        $peerName = $this->generatePeerClassName($table);
+        $peerName = $this->generatePeerClassName($table->name);
         foreach ($fks as $pair) {
             list($firstKey, $secondKey) = $pair;
             $table0 = $firstKey[0];
@@ -436,7 +328,7 @@ class Generator extends \ActiveRecord\gii\Generator
             $relationName = $this->generateRelationName($relations, $table0Schema, key($secondKey), true);
             $relations[$table0Schema->fullName][$relationName] = [
                 "return \$this->hasMany($className1::className(), $link)->viaTable('"
-                . $this->generateTableName($table->name) . "', $viaLink);",
+                . $table->name . "', $viaLink);",
                 $className1,
                 true,
             ];
@@ -446,7 +338,7 @@ class Generator extends \ActiveRecord\gii\Generator
             $relationName = $this->generateRelationName($relations, $table1Schema, key($firstKey), true);
             $relations[$table1Schema->fullName][$relationName] = [
                 "return \$this->hasMany($className0::className(), $link)->viaTable('"
-                . $this->generateTableName($table->name) . "', $viaLink);",
+                . $table->name . "', $viaLink);",
                 $className0,
                 true,
             ];
@@ -462,51 +354,34 @@ class Generator extends \ActiveRecord\gii\Generator
      */
     protected function getSchemaNames()
     {
-        $db = $this->getDbConnection();
-
-        if ($this->generateRelationsFromCurrentSchema) {
-            if ($db->schema->defaultSchema !== null) {
-                return [$db->schema->defaultSchema];
-            }
-            return [''];
+        $result = [];
+        foreach ($this->classNames as $tableName => $class) {
+            $parts = explode('.',$tableName,2);
+            $result[] = $parts[0];
         }
-
-        $schema = $db->getSchema();
-        if ($schema->hasMethod('getSchemaNames')) { // keep BC to Yii versions < 2.0.4
-            try {
-                $schemaNames = $schema->getSchemaNames();
-            } catch (NotSupportedException $e) {
-                // schema names are not supported by schema
-            }
-        }
-        if (!isset($schemaNames)) {
-            if (($pos = strpos($this->tableName, '.')) !== false) {
-                $schemaNames = [substr($this->tableName, 0, $pos)];
-            } else {
-                $schemaNames = [''];
-            }
-        }
-        return $schemaNames;
+        return array_unique($result);
     }
 
     /**
      * @return array the generated relation declarations
      */
-    protected function generateRelations()
-    {
-        if ($this->generateRelations === self::RELATIONS_NONE) {
-            return [];
-        }
+    protected function generateRelations() {
 
         $db = $this->getDbConnection();
         $relations = [];
         $schemaNames = $this->getSchemaNames();
         foreach ($schemaNames as $schemaName) {
             foreach ($db->getSchema()->getTableSchemas($schemaName) as $table) {
-                $className = $this->generateClassName($table->fullName);
+                if (!isset($this->classNames[$table->fullName])) {
+                    continue;
+                }
+                $className = $this->generateMainClassName($table->fullName);
                 $peerName = $this->generatePeerClassName($table->fullName);
                 foreach ($table->foreignKeys as $refs) {
                     $refTable = $refs[0];
+                    if (!isset($this->classNames[$refTable])) {
+                        continue;
+                    }
                     $refTableSchema = $db->getTableSchema($refTable);
                     if ($refTableSchema === null) {
                         // Foreign key could point to non-existing table: https://github.com/yiisoft/yii2-gii/issues/34
@@ -514,13 +389,13 @@ class Generator extends \ActiveRecord\gii\Generator
                     }
                     unset($refs[0]);
                     $fks = array_keys($refs);
-                    $refClassName = $this->generateClassName($refTable);
+                    $refClassName = $this->generateMainClassName($refTable);
                     $refPeerName = $this->generatePeerClassName($refTable);
                     // Add relation for this table
                     $link = $this->generateRelationLink(array_flip($refs), $refPeerName, $peerName);
                     $relationName = $this->generateRelationName($relations, $table, $fks[0], false);
                     $relations[$table->fullName][$relationName] = [
-                        "return \$this->hasOne($refClassName::className(), $link);",
+                        "return \$this->hasOne(\\$this->ns\\$refClassName::className(), $link);",
                         $refClassName,
                         false,
                     ];
@@ -530,7 +405,7 @@ class Generator extends \ActiveRecord\gii\Generator
                     $link = $this->generateRelationLink($refs, $peerName, $refPeerName);
                     $relationName = $this->generateRelationName($relations, $refTableSchema, $className, $hasMany);
                     $relations[$refTableSchema->fullName][$relationName] = [
-                        "return \$this->" . ($hasMany ? 'hasMany' : 'hasOne') . "($className::className(), $link);",
+                        "return \$this->" . ($hasMany ? 'hasMany' : 'hasOne') . "(\\$this->ns\\$className::className(), $link);",
                         $className,
                         $hasMany,
                     ];
@@ -541,56 +416,6 @@ class Generator extends \ActiveRecord\gii\Generator
                 }
 
                 $relations = $this->generateManyManyRelations($table, $junctionFks, $relations);
-            }
-        }
-
-        if ($this->generateRelations === self::RELATIONS_ALL_INVERSE) {
-            return $this->addInverseRelations($relations);
-        }
-
-        return $relations;
-    }
-
-    /**
-     * Adds inverse relations
-     *
-     * @param array $relations relation declarations
-     * @return array relation declarations extended with inverse relation names
-     * @since 2.0.5
-     */
-    protected function addInverseRelations($relations)
-    {
-        $db = $this->getDbConnection();
-        $relationNames = [];
-
-        $schemaNames = $this->getSchemaNames();
-        foreach ($schemaNames as $schemaName) {
-            foreach ($db->schema->getTableSchemas($schemaName) as $table) {
-                $className = $this->generateClassName($table->fullName);
-                foreach ($table->foreignKeys as $refs) {
-                    $refTable = $refs[0];
-                    $refTableSchema = $db->getTableSchema($refTable);
-                    unset($refs[0]);
-                    $fks = array_keys($refs);
-
-                    $leftRelationName = $this->generateRelationName($relationNames, $table, $fks[0], false);
-                    $relationNames[$table->fullName][$leftRelationName] = true;
-                    $hasMany = $this->isHasManyRelation($table, $fks);
-                    $rightRelationName = $this->generateRelationName(
-                        $relationNames,
-                        $refTableSchema,
-                        $className,
-                        $hasMany
-                    );
-                    $relationNames[$refTableSchema->fullName][$rightRelationName] = true;
-
-                    $relations[$table->fullName][$leftRelationName][0] =
-                        rtrim($relations[$table->fullName][$leftRelationName][0], ';')
-                        . "->inverseOf('".lcfirst($rightRelationName)."');";
-                    $relations[$refTableSchema->fullName][$rightRelationName][0] =
-                        rtrim($relations[$refTableSchema->fullName][$rightRelationName][0], ';')
-                        . "->inverseOf('".lcfirst($leftRelationName)."');";
-                }
             }
         }
         return $relations;
@@ -719,42 +544,7 @@ class Generator extends \ActiveRecord\gii\Generator
     }
 
 
-    /**
-     * Validates the [[modelClass]] attribute.
-     */
-    public function validateModelClass()
-    {
-        if ($this->isReservedKeyword($this->modelClass)) {
-            $this->addError('modelClass', 'Class name cannot be a reserved PHP keyword.');
-        }
-        if ((empty($this->tableName) || substr_compare($this->tableName, '*', -1, 1)) && $this->modelClass == '') {
-            $this->addError('modelClass', 'Model Class cannot be blank if table name does not end with asterisk.');
-        }
-    }
 
-    /**
-     * Validates the [[tableName]] attribute.
-     */
-    public function validateTableName()
-    {
-        if (strpos($this->tableName, '*') !== false && substr_compare($this->tableName, '*', -1, 1)) {
-            $this->addError('tableName', 'Asterisk is only allowed as the last character.');
-
-            return;
-        }
-        $tables = $this->getTableNames();
-        if (empty($tables)) {
-            $this->addError('tableName', "Table '{$this->tableName}' does not exist.");
-        } else {
-            foreach ($tables as $table) {
-                $class = $this->generateClassName($table);
-                if ($this->isReservedKeyword($class)) {
-                    $this->addError('tableName', "Table '$table' will generate a class which is a reserved PHP keyword.");
-                    break;
-                }
-            }
-        }
-    }
 
     protected $tableNames;
 
@@ -763,55 +553,7 @@ class Generator extends \ActiveRecord\gii\Generator
      */
     protected function getTableNames()
     {
-        if ($this->tableNames !== null) {
-            return $this->tableNames;
-        }
-        $db = $this->getDbConnection();
-        if ($db === null) {
-            return [];
-        }
-        $tableNames = [];
-        if (strpos($this->tableName, '*') !== false) {
-            if (($pos = strrpos($this->tableName, '.')) !== false) {
-                $schema = substr($this->tableName, 0, $pos);
-                $pattern = '/^' . str_replace('*', '\w+', substr($this->tableName, $pos + 1)) . '$/';
-            } else {
-                $schema = '';
-                $pattern = '/^' . str_replace('*', '\w+', $this->tableName) . '$/';
-            }
-
-            foreach ($db->schema->getTableNames($schema) as $table) {
-                if (preg_match($pattern, $table)) {
-                    $tableNames[] = $schema === '' ? $table : ($schema . '.' . $table);
-                }
-            }
-        } elseif (($table = $db->getTableSchema($this->tableName, true)) !== null) {
-            $tableNames[] = $this->tableName;
-            $this->classNames[$this->tableName] = $this->modelClass;
-        }
-
-        return $this->tableNames = $tableNames;
-    }
-
-    /**
-     * Generates the table name by considering table prefix.
-     * If [[useTablePrefix]] is false, the table name will be returned without change.
-     * @param string $tableName the table name (which may contain schema prefix)
-     * @return string the generated table name
-     */
-    public function generateTableName($tableName)
-    {
-        if (!$this->useTablePrefix) {
-            return $this->db.'.'.$tableName;
-        }
-
-        $db = $this->getDbConnection();
-        if (preg_match("/^{$db->tablePrefix}(.*?)$/", $tableName, $matches)) {
-            $tableName = '{{%' . $matches[1] . '}}';
-        } elseif (preg_match("/^(.*?){$db->tablePrefix}$/", $tableName, $matches)) {
-            $tableName = '{{' . $matches[1] . '%}}';
-        }
-        return $this->db.'.'.$tableName;
+        return array_keys($this->classNames);
     }
 
     /**
@@ -820,56 +562,43 @@ class Generator extends \ActiveRecord\gii\Generator
      * @param bool $useSchemaName should schema name be included in the class name, if present
      * @return string the generated class name
      */
-    protected function generateClassName($tableName, $useSchemaName = null)
+    protected function generateMainClassName($tableName)
     {
         if (isset($this->classNames[$tableName])) {
             return $this->classNames[$tableName];
         }
+        throw new \Exception('Table not needed:'.$tableName);
+    }
 
-        $schemaName = '';
-        $fullTableName = $tableName;
-        if (($pos = strrpos($tableName, '.')) !== false) {
-            if (($useSchemaName === null && $this->useSchemaName) || $useSchemaName) {
-                $schemaName = substr($tableName, 0, $pos) . '_';
-            }
-            $tableName = substr($tableName, $pos + 1);
+    protected function generateClassName($tableName)
+    {
+        if (isset($this->classNames[$tableName])) {
+            return 'C'.$this->classNames[$tableName];
         }
-
-        $db = $this->getDbConnection();
-        $patterns = [];
-        $patterns[] = "/^{$db->tablePrefix}(.*?)$/";
-        $patterns[] = "/^(.*?){$db->tablePrefix}$/";
-        if (strpos($this->tableName, '*') !== false) {
-            $pattern = $this->tableName;
-            if (($pos = strrpos($pattern, '.')) !== false) {
-                $pattern = substr($pattern, $pos + 1);
-            }
-            $patterns[] = '/^' . str_replace('*', '(\w+)', $pattern) . '$/';
-        }
-        $className = $tableName;
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $tableName, $matches)) {
-                $className = $matches[1];
-                break;
-            }
-        }
-
-        return $this->classNames[$fullTableName] = Inflector::id2camel($schemaName.$className, '_');
+        throw new \Exception('Table not needed:'.$tableName);
     }
 
     /**
      * Generates a query class name from the specified model class name.
-     * @param string $modelClassName model class name
+     * @param $tableName
      * @return string generated class name
      */
-    protected function generateQueryClassName($modelClassName)
+    protected function generateQueryClassName($tableName)
     {
-        return $modelClassName.'Query';
+        return $this->generateClassName($tableName).'Query';
     }
 
-    protected function generatePeerClassName($table)
+    protected function generateMainQueryClassName($tableName) {
+        return $this->generateMainClassName($tableName).'Query';
+    }
+
+    protected function generatePeerClassName($tableName)
     {
-        return 'C'.$this->generateClassName($table.'_peer');
+        if (strpos($tableName,'.')) {
+            $tableName = explode('.',$tableName);
+            $tableName = $tableName[1];
+        }
+        return 'C'.implode('', array_map('ucfirst', explode('_', $tableName.'_peer')));
     }
 
     /**

@@ -16,9 +16,9 @@
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->ns ?>;
+namespace <?= $ns.'\\'.$sub ?>;
 
-class <?= $className ?>  {
+class <?= $peerClassName ?>  {
 
 <?php foreach ($tableSchema->columns as $column): ?>
     const <?= strtoupper($column->name);?> = "<?=$column->name;?>";

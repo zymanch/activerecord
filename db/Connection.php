@@ -195,7 +195,7 @@ class Connection extends Component
      * is used to cache the table metadata.
      * @see enableSchemaCache
      */
-    public $schemaCache = 'cache';
+    public $schemaCache = [];
     /**
      * @var bool whether to enable query caching.
      * Note that in order to enable query caching, a valid cache component as specified

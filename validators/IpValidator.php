@@ -577,38 +577,4 @@ class IpValidator extends Validator
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function getClientOptions($model, $attribute)
-    {
-        $messages = [
-            'ipv6NotAllowed' => $this->ipv6NotAllowed,
-            'ipv4NotAllowed' => $this->ipv4NotAllowed,
-            'message' => $this->message,
-            'noSubnet' => $this->noSubnet,
-            'hasSubnet' => $this->hasSubnet,
-        ];
-        foreach ($messages as &$message) {
-            $message = $this->formatMessage($message, [
-                'attribute' => $model->getAttributeLabel($attribute),
-            ]);
-        }
-
-        $options = [
-            'ipv4Pattern' => new JsExpression(Html::escapeJsRegularExpression($this->ipv4Pattern)),
-            'ipv6Pattern' => new JsExpression(Html::escapeJsRegularExpression($this->ipv6Pattern)),
-            'messages' => $messages,
-            'ipv4' => (bool) $this->ipv4,
-            'ipv6' => (bool) $this->ipv6,
-            'ipParsePattern' => new JsExpression(Html::escapeJsRegularExpression($this->getIpParsePattern())),
-            'negation' => $this->negation,
-            'subnet' => $this->subnet,
-        ];
-        if ($this->skipOnEmpty) {
-            $options['skipOnEmpty'] = 1;
-        }
-
-        return $options;
-    }
 }

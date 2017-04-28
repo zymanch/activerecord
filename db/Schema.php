@@ -10,8 +10,6 @@ namespace ActiveRecord\db;
 use ActiveRecord\base\Object;
 use ActiveRecord\base\NotSupportedException;
 use ActiveRecord\base\InvalidCallException;
-use ActiveRecord\caching\Cache;
-use ActiveRecord\caching\TagDependency;
 
 /**
  * Schema is the base class for concrete DBMS-specific schema classes.
@@ -124,23 +122,18 @@ abstract class Schema extends Object
         $realName = $this->getRawTableName($name);
 
         if ($db->enableSchemaCache && !in_array($name, $db->schemaCacheExclude, true)) {
-            /* @var $cache Cache */
-            $cache = is_string($db->schemaCache) ? ActiveRecord::$app->get($db->schemaCache, false) : $db->schemaCache;
-            if ($cache instanceof Cache) {
-                $key = $this->getCacheKey($name);
-                if ($refresh || ($table = $cache->get($key)) === false) {
-                    $this->_tables[$name] = $table = $this->loadTableSchema($realName);
-                    if ($table !== null) {
-                        $cache->set($key, $table, $db->schemaCacheDuration, new TagDependency([
-                            'tags' => $this->getCacheTag(),
-                        ]));
-                    }
-                } else {
-                    $this->_tables[$name] = $table;
+            $key = $this->getCacheKey($name);
+            $table = isset($db->schemaCache[$key]) ? $db->schemaCache[$key] : null;
+            if ($refresh || !$table) {
+                $this->_tables[$name] = $table = $this->loadTableSchema($realName);
+                if ($table !== null) {
+                    $db->schemaCache[$key] = $table;
                 }
-
-                return $this->_tables[$name];
+            } else {
+                $this->_tables[$name] = $table;
             }
+
+            return $this->_tables[$name];
         }
 
         return $this->_tables[$name] = $this->loadTableSchema($realName);
@@ -153,12 +146,12 @@ abstract class Schema extends Object
      */
     protected function getCacheKey($name)
     {
-        return [
+        return serialize(implode(',',[
             __CLASS__,
             $this->db->dsn,
             $this->db->username,
             $name,
-        ];
+        ]));
     }
 
     /**
@@ -271,11 +264,6 @@ abstract class Schema extends Object
      */
     public function refresh()
     {
-        /* @var $cache Cache */
-        $cache = is_string($this->db->schemaCache) ? ActiveRecord::$app->get($this->db->schemaCache, false) : $this->db->schemaCache;
-        if ($this->db->enableSchemaCache && $cache instanceof Cache) {
-            TagDependency::invalidate($cache, $this->getCacheTag());
-        }
         $this->_tableNames = [];
         $this->_tables = [];
     }
@@ -291,10 +279,8 @@ abstract class Schema extends Object
     {
         unset($this->_tables[$name]);
         $this->_tableNames = [];
-        /* @var $cache Cache */
-        $cache = is_string($this->db->schemaCache) ? ActiveRecord::$app->get($this->db->schemaCache, false) : $this->db->schemaCache;
-        if ($this->db->enableSchemaCache && $cache instanceof Cache) {
-            $cache->delete($this->getCacheKey($name));
+        if ($this->db->enableSchemaCache && isset($this->db->schemaCache[$this->getCacheKey($name)])) {
+            unset($this->db->schemaCache[$this->getCacheKey($name)]);
         }
     }
 

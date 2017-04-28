@@ -64,7 +64,7 @@ class Formatter extends Component
      * [PHP intl extension](http://php.net/manual/en/book.intl.php) is installed.
      * If not set, [[\ActiveRecord\base\Application::language]] will be used.
      */
-    public $locale;
+    public $locale = "en_US";
     /**
      * @var string the time zone to use for formatting time and date values.
      *
@@ -261,14 +261,8 @@ class Formatter extends Component
      */
     public function init()
     {
-        if ($this->timeZone === null) {
-            $this->timeZone = ActiveRecord::$app->timeZone;
-        }
-        if ($this->locale === null) {
-            $this->locale = ActiveRecord::$app->language;
-        }
         if ($this->booleanFormat === null) {
-            $this->booleanFormat = [ActiveRecord::t('yii', 'No', [], $this->locale), ActiveRecord::t('yii', 'Yes', [], $this->locale)];
+            $this->booleanFormat = ['No', 'Yes'];
         }
         if ($this->nullDisplay === null) {
             $this->nullDisplay = '<span class="not-set">' .  '(not set)' . '</span>';

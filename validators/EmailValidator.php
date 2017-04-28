@@ -104,24 +104,4 @@ class EmailValidator extends Validator
     }
 
 
-    /**
-     * @inheritdoc
-     */
-    public function getClientOptions($model, $attribute)
-    {
-        $options = [
-            'pattern' => new JsExpression($this->pattern),
-            'fullPattern' => new JsExpression($this->fullPattern),
-            'allowName' => $this->allowName,
-            'message' => $this->formatMessage($this->message, [
-                'attribute' => $model->getAttributeLabel($attribute),
-            ]),
-            'enableIDN' => (bool)$this->enableIDN,
-        ];
-        if ($this->skipOnEmpty) {
-            $options['skipOnEmpty'] = 1;
-        }
-
-        return $options;
-    }
 }

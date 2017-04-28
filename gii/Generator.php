@@ -71,7 +71,7 @@ abstract class Generator extends Model
      * @param $path
      * @return CodeFile[] a list of code files to be created.
      */
-    abstract public function generate($path);
+    abstract public function generate();
 
     /**
      * @inheritdoc

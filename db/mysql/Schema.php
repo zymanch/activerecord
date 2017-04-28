@@ -252,6 +252,7 @@ class Schema extends \ActiveRecord\db\Schema
 SELECT
     kcu.constraint_name,
     kcu.column_name,
+    kcu.referenced_table_schema,
     kcu.referenced_table_name,
     kcu.referenced_column_name
 FROM information_schema.referential_constraints AS rc
@@ -262,21 +263,23 @@ JOIN information_schema.key_column_usage AS kcu ON
     ) AND
     kcu.constraint_schema = rc.constraint_schema AND
     kcu.constraint_name = rc.constraint_name
-WHERE rc.constraint_schema = database() AND kcu.table_schema = database()
+WHERE rc.constraint_schema = :schema AND kcu.table_schema = :schema
 AND rc.table_name = :tableName AND kcu.table_name = :tableName1
 SQL;
 
         try {
-            $rows = $this->db->createCommand($sql, [':tableName' => $table->name, ':tableName1' => $table->name])->queryAll();
+            $rows = $this->db->createCommand($sql, [':schema' => $table->schemaName, ':tableName' => $table->name, ':tableName1' => $table->name])->queryAll();
             $constraints = [];
 
             foreach ($rows as $row) {
-                $constraints[$row['constraint_name']]['referenced_table_name'] = $row['referenced_table_name'];
+                $constraints[$row['constraint_name']]['referenced_table_name'] = $row['referenced_table_schema'].'.'.$row['referenced_table_name'];
                 $constraints[$row['constraint_name']]['columns'][$row['column_name']] = $row['referenced_column_name'];
             }
-
             $table->foreignKeys = [];
             foreach ($constraints as $name => $constraint) {
+                if (!strpos($constraint['referenced_table_name'],'.')) {
+                    $constraint['referenced_table_name'] = $table->schemaName.'.'.$constraint['referenced_table_name'];
+                }
                 $table->foreignKeys[$name] = array_merge(
                     [$constraint['referenced_table_name']],
                     $constraint['columns']
