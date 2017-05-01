@@ -23,7 +23,7 @@ namespace <?= $ns.'\\'.$sub ?>;
 /**
  * This is the ActiveQuery class for [[<?= $ns.'\\'.$mainClassName ?>]].
 <?php foreach ($tableSchema->columns as $column): ?>
- * @method <?= $ns.'\\'.$mainQueryClassName ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
+ * @method \<?= $ns.'\\'.$mainQueryClassName ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
 <?php endforeach; ?>
  */
 class <?= $queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
