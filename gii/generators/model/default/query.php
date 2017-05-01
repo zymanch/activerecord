@@ -26,7 +26,7 @@ namespace <?= $ns.'\\'.$sub ?>;
  * @method <?= $mainQueryClassName ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
 <?php endforeach; ?>
  */
-class <?= $queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
+class <?= $ns.'\\'.$queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
 {
     /*public function active()
     {
