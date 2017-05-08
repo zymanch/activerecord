@@ -51,5 +51,8 @@ class Criteria {
     /** "IS NOT NULL" null comparison */
     const ISNOTNULL = " IS NOT NULL ";
 
+    const ASC = 'asc';
+    const DESC = 'desc';
+
 
 }

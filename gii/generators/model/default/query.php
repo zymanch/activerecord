@@ -18,12 +18,16 @@ echo "<?php\n";
 ?>
 
 namespace <?= $ns.'\\'.$sub ?>;
-
+use ActiveRecord\Criteria;
+use <?= $ns.'\\'.$mainQueryClassName;?>;
 
 /**
  * This is the ActiveQuery class for [[<?= $ns.'\\'.$mainClassName ?>]].
 <?php foreach ($tableSchema->columns as $column): ?>
- * @method \<?= $ns.'\\'.$mainQueryClassName ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
+ * @method <?= $mainQueryClassName ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
+<?php endforeach; ?>
+<?php foreach ($tableSchema->columns as $column): ?>
+    * @method <?= $mainQueryClassName ?> orderBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($order = Criteria::ASC)
 <?php endforeach; ?>
  */
 class <?= $queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>

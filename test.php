@@ -51,7 +51,7 @@ $db->schemaCache = new Cache();
 \ActiveRecord\db\ActiveRecord::setDb($db);
 \ActiveRecord\db\Query::setDb($db);
 
-$tables = 'gtf:video,video_file';
+$tables = 'gtf:video,video_file,file_object_type,file_object_type_family';
 $tables = explode(';',$tables);
 $generator = new \ActiveRecord\Generator($db);
 foreach ($tables as $databaseAndTables) {

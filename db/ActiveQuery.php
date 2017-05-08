@@ -806,9 +806,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 8)));
             return $this->filterByField(
                 $fieldName,
-                $params[0],
+                '[['.$params[0].']]',
                 isset($params[1]) ? $params[1] : null
             );
+        }
+        if (substr($name,0,7)=='orderBy') {
+            $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 7)));
+            return $this->addOrderBy([
+                '[['.$fieldName.']]' => ($params?$params[0]:'asc')
+            ]);
         }
         return parent::__call($name, $params);
     }
