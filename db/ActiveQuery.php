@@ -818,10 +818,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
         if (substr($name,0,4)=='with') {
             $fieldName = lcfirst(substr($name, 4));
-            return $this->with(array_merge(
-                $this->with,
-                [$fieldName => isset($params[0]) ? $params[0] : []]
-            ));
+            return $this->with([$fieldName => isset($params[0]) ? $params[0] : []]);
         }
         return parent::__call($name, $params);
     }
