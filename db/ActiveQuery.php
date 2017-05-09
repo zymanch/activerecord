@@ -805,8 +805,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (substr($name,0,8)=='filterBy') {
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 8)));
             return $this->filterByField(
-                $fieldName,
-                '[['.$params[0].']]',
+                '[['.$fieldName.']]',
+                $params[0],
                 isset($params[1]) ? $params[1] : null
             );
         }
