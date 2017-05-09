@@ -27,7 +27,11 @@ use <?= $ns.'\\'.$mainQueryClassName;?>;
  * @method <?= $mainQueryClassName ?> filterBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($value, $criteria = null)
 <?php endforeach; ?>
 <?php foreach ($tableSchema->columns as $column): ?>
-    * @method <?= $mainQueryClassName ?> orderBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($order = Criteria::ASC)
+  * @method <?= $mainQueryClassName ?> orderBy<?= str_replace('_', '', ucwords($column->name, '_')); ?>($order = Criteria::ASC)
+<?php endforeach; ?>
+<?php foreach ($relations as $name => $relation): ?>
+<?php $parts = explode('\\',$name);?>
+  * @method <?= $mainQueryClassName ?> with<?= $parts[sizeof($parts)-1] ?>($params)
 <?php endforeach; ?>
  */
 class <?= $queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
