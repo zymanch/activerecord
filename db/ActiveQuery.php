@@ -813,7 +813,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (substr($name,0,7)=='orderBy') {
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 7)));
             return $this->addOrderBy([
-                '[['.$fieldName.']]' => ($params?$params[0]:'asc')
+                '[['.$fieldName.']]' => ($params?$params[0]:SORT_ASC)
             ]);
         }
         if (substr($name,0,4)=='with') {
