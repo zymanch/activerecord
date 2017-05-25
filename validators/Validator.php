@@ -225,11 +225,8 @@ class Validator extends Component
             }
         }
         $validatorClass = $params['class'];
-        $validator = new $validatorClass();
         unset($params['class']);
-        foreach ($params as $key => $value) {
-            $validator->$key = $value;
-        }
+        $validator = new $validatorClass($params);
         return $validator;
     }
 

@@ -987,11 +987,8 @@ class Connection extends Component
 
             /* @var $db Connection */
             $class = $config['class'];
-            $db = new $class();
             unset($config['class']);
-            foreach ($config as $key => $value) {
-                $db->$key = $value;
-            }
+            $db = new $class($config);
             try {
                 $db->open();
                 return $db;
