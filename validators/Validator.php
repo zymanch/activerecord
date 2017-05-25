@@ -9,6 +9,7 @@ namespace ActiveRecord\validators;
 
 use ActiveRecord\base\Component;
 use ActiveRecord\base\NotSupportedException;
+use ActiveRecord\i18n\MessageFormatter;
 
 /**
  * Validator is the base class for all validators.
@@ -396,12 +397,11 @@ class Validator extends Component
      */
     protected function formatMessage($message, $params)
     {
-        $placeholders = [];
-        foreach ((array) $params as $name => $value) {
-            $placeholders['{' . $name . '}'] = $value;
+        if (!$params) {
+            return $message;
         }
-
-        return ($placeholders === []) ? $message : strtr($message, $placeholders);
+        $formatter = new MessageFormatter();
+        return $formatter->format($message, $params, 'en_US');
     }
 
     /**
