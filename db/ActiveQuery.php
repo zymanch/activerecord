@@ -820,6 +820,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $fieldName = lcfirst(substr($name, 4));
             return $this->with([$fieldName => isset($params[0]) ? $params[0] : []]);
         }
+        if (substr($name,0,8)=='joinWith') {
+            $fieldName = lcfirst(substr($name, 4));
+            $param0 = (isset($params[0]) ? $params[0] : []);
+            return $this->joinWith(
+                [$fieldName => $param0],
+                true,
+                isset($param0['joinType']) ? $param0['joinType'] : 'LEFT JOIN'
+            );
+        }
         return parent::__call($name, $params);
     }
 

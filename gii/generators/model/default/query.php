@@ -32,6 +32,7 @@ use <?= $ns.'\\'.$mainQueryClassName;?>;
 <?php foreach ($relations as $name => $relation): ?>
 <?php $parts = explode('\\',$name);?>
   * @method <?= $mainQueryClassName ?> with<?= $parts[sizeof($parts)-1] ?>($params = [])
+  * @method <?= $mainQueryClassName ?> joinWith<?= $parts[sizeof($parts)-1] ?>($params = [])
 <?php endforeach; ?>
  */
 class <?= $queryClassName ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
