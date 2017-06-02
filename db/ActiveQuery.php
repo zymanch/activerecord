@@ -800,27 +800,22 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    protected function _getModelAlias() {
-        $class  = $this->modelClass;
-        $table = explode('.',$class::tableName());
-        return '[['.end($table).']]';
-    }
-
 
     public function __call($name, $params) {
         if (substr($name,0,8)=='filterBy') {
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 8)));
-
+            list(,$alias) = $this->getTableNameAndAlias();
             return $this->filterByField(
-                $this->_getModelAlias().'.'.$fieldName,
+                $alias.'.'.$fieldName,
                 $params[0],
                 isset($params[1]) ? $params[1] : null
             );
         }
         if (substr($name,0,7)=='orderBy') {
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 7)));
+            list(,$alias) = $this->getTableNameAndAlias();
             return $this->addOrderBy([
-                 $this->_getModelAlias().'.'.$fieldName => ($params?$params[0]:SORT_ASC)
+                 $alias.'.'.$fieldName => ($params?$params[0]:SORT_ASC)
             ]);
         }
         if (substr($name,0,4)=='with') {
