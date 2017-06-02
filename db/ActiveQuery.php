@@ -801,8 +801,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     protected function _getModelAlias() {
-        $parts = explode('\\',$this->modelClass);
-        return '[['.lcfirst(end($parts)).']]';
+        $class  = $this->modelClass;
+        $table = explode('.',$class::tableName());
+        return '[['.end($table).']]';
     }
 
 
