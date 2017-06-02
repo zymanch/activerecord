@@ -821,7 +821,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return $this->with([$fieldName => isset($params[0]) ? $params[0] : []]);
         }
         if (substr($name,0,8)=='joinWith') {
-            $fieldName = lcfirst(substr($name, 4));
+            $fieldName = lcfirst(substr($name, 8));
             $param0 = (isset($params[0]) ? $params[0] : []);
             return $this->joinWith(
                 [$fieldName => $param0],
