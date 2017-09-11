@@ -122,7 +122,6 @@ class Transaction extends \ActiveRecord\base\Object
                 $this->db->getSchema()->setTransactionIsolationLevel($isolationLevel);
             }
 
-            $this->db->trigger(Connection::EVENT_BEGIN_TRANSACTION);
             $this->db->pdo->beginTransaction();
             $this->_level = 1;
 
@@ -149,7 +148,6 @@ class Transaction extends \ActiveRecord\base\Object
         $this->_level--;
         if ($this->_level === 0) {
             $this->db->pdo->commit();
-            $this->db->trigger(Connection::EVENT_COMMIT_TRANSACTION);
             return;
         }
 
@@ -174,7 +172,6 @@ class Transaction extends \ActiveRecord\base\Object
         $this->_level--;
         if ($this->_level === 0) {
             $this->db->pdo->rollBack();
-            $this->db->trigger(Connection::EVENT_ROLLBACK_TRANSACTION);
             return;
         }
 
