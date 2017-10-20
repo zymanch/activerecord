@@ -802,7 +802,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
 
     public function __call($name, $params) {
-        if (substr($name,0,8)=='filterBy') {
+        if (substr($name,0,8)==='filterBy') {
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 8)));
             list(,$alias) = $this->getTableNameAndAlias();
             return $this->filterByField(
@@ -811,24 +811,28 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 isset($params[1]) ? $params[1] : null
             );
         }
-        if (substr($name,0,7)=='orderBy') {
+        if (substr($name,0,7)==='orderBy') {
             $fieldName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', substr($name, 7)));
             list(,$alias) = $this->getTableNameAndAlias();
             return $this->addOrderBy([
                  $alias.'.'.$fieldName => ($params?$params[0]:SORT_ASC)
             ]);
         }
-        if (substr($name,0,4)=='with') {
+        if (substr($name,0,4)==='with') {
             $fieldName = lcfirst(substr($name, 4));
             return $this->with([$fieldName => isset($params[0]) ? $params[0] : []]);
         }
-        if (substr($name,0,8)=='joinWith') {
+        if (substr($name,0,8)==='joinWith') {
             $fieldName = lcfirst(substr($name, 8));
-            $param0 = (isset($params[0]) ? $params[0] : []);
+            $param0 = (isset($params[0]) ? $params[0] : null);
+            $joinType = 'LEFT JOIN';
+            if (isset($params[1])) {
+                $joinType = $params[1];
+            }
             return $this->joinWith(
                 [$fieldName => $param0],
                 true,
-                isset($param0['joinType']) ? $param0['joinType'] : 'LEFT JOIN'
+                $joinType
             );
         }
         return parent::__call($name, $params);
