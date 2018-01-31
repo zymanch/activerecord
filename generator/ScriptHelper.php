@@ -6,9 +6,9 @@ use ActiveRecord\db\Connection;
 class ScriptHelper {
 
     /**
-     * @param $tables Example: shared:website,rest_query,script_log;geoip:geo_zone
+     * @param string $tables Example: shared:website,rest_query,script_log;geoip:geo_zone
      */
-    public function generate($tables) {
+    public function generate($dir, $tables) {
         $tables = explode(';',$tables);
         /** @var Connection $db */
         $db = \ActiveRecord\db\Query::getDb();
@@ -27,7 +27,7 @@ class ScriptHelper {
             }
             $generator->addDatabase($database);
         }
-        $generator->generate('Model',__DIR__.'/../src/Model');
+        $generator->generate('Model',$dir);
     }
 
     protected function _getTables(Connection $db, $database) {
