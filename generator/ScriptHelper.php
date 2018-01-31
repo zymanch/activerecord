@@ -1,18 +1,18 @@
-#!/usr/bin/env php
 <?php
-include(dirname(__FILE__).'/../boot.php');
+namespace ActiveRecord\generator;
 
-class ARGenerator extends Core_Module_Display_Console {
+use ActiveRecord\db\Connection;
 
-    protected $title = 'AR GENERATOR';
+class ScriptHelper {
 
     /**
      * @param $tables Example: shared:website,rest_query,script_log;geoip:geo_zone
      */
-    public function run($tables) {
+    public function generate($tables) {
         $tables = explode(';',$tables);
-        $db = \Core_Registry::db();
-        $generator = new \ActiveRecord\Generator($db);
+        /** @var Connection $db */
+        $db = \ActiveRecord\db\Query::getDb();
+        $generator = new Generator($db);
         foreach ($tables as $databaseAndTables) {
             $databaseAndTables = explode(':',$databaseAndTables,2);
             $database = $databaseAndTables[0];
@@ -21,7 +21,7 @@ class ARGenerator extends Core_Module_Display_Console {
             } else {
                 $tables = $this->_getTables($db, $database);
             }
-            $database = new \ActiveRecord\GeneratorDatabase($database);
+            $database = new GeneratorDatabase($database);
             foreach ($tables as $table) {
                 $database->addTable($table);
             }
@@ -30,9 +30,8 @@ class ARGenerator extends Core_Module_Display_Console {
         $generator->generate('Model',__DIR__.'/../src/Model');
     }
 
-    protected function _getTables($db, $database) {
+    protected function _getTables(Connection $db, $database) {
         return $db->createCommand('show tables from '.$database)->queryColumn();
     }
 
 }
-new ARGenerator();

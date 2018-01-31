@@ -1,6 +1,6 @@
 <?php
 
-namespace ActiveRecord;
+namespace ActiveRecord\generator;
 
 class Generator {
 
