@@ -1,5 +1,5 @@
 <?php
-namespace ActiveRecord\db\Behaviour;
+namespace ActiveRecord\db\behaviour;
 
 
 use ActiveRecord\db\ActiveRecord;
