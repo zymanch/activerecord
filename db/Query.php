@@ -259,6 +259,7 @@ class Query extends Component implements QueryInterface
         if ($this->emulateExecution) {
             return false;
         }
+        $this->limit(1);
         return $this->createCommand($db)->queryOne();
     }
 
