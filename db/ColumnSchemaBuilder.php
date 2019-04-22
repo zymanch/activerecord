@@ -7,7 +7,7 @@
 
 namespace ActiveRecord\db;
 
-use ActiveRecord\base\Object;
+use ActiveRecord\base\BaseObject;
 
 /**
  * ColumnSchemaBuilder helps to define database schema types using a PHP interface.
@@ -17,7 +17,7 @@ use ActiveRecord\base\Object;
  * @author Vasenin Matvey <vaseninm@gmail.com>
  * @since 2.0.6
  */
-class ColumnSchemaBuilder extends Object
+class ColumnSchemaBuilder extends BaseObject
 {
     // Internally used constants representing categories that abstract column types fall under.
     // See [[$categoryMap]] for mappings of abstract column types to category.

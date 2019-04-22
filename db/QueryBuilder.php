@@ -23,7 +23,7 @@ use ActiveRecord\helpers\ArrayHelper;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class QueryBuilder extends \ActiveRecord\base\Object
+class QueryBuilder extends \ActiveRecord\base\BaseObject
 {
     /**
      * The prefix for automatically generated query binding parameters.

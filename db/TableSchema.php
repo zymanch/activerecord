@@ -7,7 +7,7 @@
 
 namespace ActiveRecord\db;
 
-use ActiveRecord\base\Object;
+use ActiveRecord\base\BaseObject;
 use ActiveRecord\base\InvalidParamException;
 
 /**
@@ -18,7 +18,7 @@ use ActiveRecord\base\InvalidParamException;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class TableSchema extends Object
+class TableSchema extends BaseObject
 {
     /**
      * @var string the name of the schema that this table belongs to.

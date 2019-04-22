@@ -24,7 +24,7 @@ namespace ActiveRecord\base;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Event extends Object
+class Event extends BaseObject
 {
     /**
      * @var string the event name. This property is set by [[Component::trigger()]] and [[trigger()]].
@@ -32,7 +32,7 @@ class Event extends Object
      */
     public $name;
     /**
-     * @var object the sender of this event. If not set, this property will be
+     * @var BaseObject the sender of this event. If not set, this property will be
      * set as the object whose `trigger()` method is called.
      * This property may also be a `null` when this event is a
      * class-level event which is triggered in a static context.
@@ -146,7 +146,7 @@ class Event extends Object
      * Returns a value indicating whether there is any handler attached to the specified class-level event.
      * Note that this method will also check all parent classes to see if there is any handler attached
      * to the named event.
-     * @param string|object $class the object or the fully qualified class name specifying the class-level event.
+     * @param string|BaseObject $class the object or the fully qualified class name specifying the class-level event.
      * @param string $name the event name.
      * @return bool whether there is any handler attached to the event.
      */
@@ -180,7 +180,7 @@ class Event extends Object
      * Triggers a class-level event.
      * This method will cause invocation of event handlers that are attached to the named event
      * for the specified class and all its parent classes.
-     * @param string|object $class the object or the fully qualified class name specifying the class-level event.
+     * @param string|BaseObject $class the object or the fully qualified class name specifying the class-level event.
      * @param string $name the event name.
      * @param Event $event the event parameter. If not set, a default [[Event]] object will be created.
      */
