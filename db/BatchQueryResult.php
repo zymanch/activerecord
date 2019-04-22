@@ -7,7 +7,7 @@
 
 namespace ActiveRecord\db;
 
-use ActiveRecord\base\Object;
+use ActiveRecord\base\BaseObject;
 
 /**
  * BatchQueryResult represents a batch query from which you can retrieve data in batches.
@@ -28,7 +28,7 @@ use ActiveRecord\base\Object;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class BatchQueryResult extends Object implements \Iterator
+class BatchQueryResult extends BaseObject implements \Iterator
 {
     /**
      * @var Connection the DB connection to be used when performing batch query.

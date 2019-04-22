@@ -28,7 +28,7 @@ namespace ActiveRecord\db;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class Expression extends \ActiveRecord\base\Object
+class Expression extends \ActiveRecord\base\BaseObject
 {
     /**
      * @var string the DB expression

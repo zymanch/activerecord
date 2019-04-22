@@ -7,7 +7,7 @@
 
 namespace ActiveRecord\db;
 
-use ActiveRecord\base\Object;
+use ActiveRecord\base\BaseObject;
 use ActiveRecord\base\NotSupportedException;
 use ActiveRecord\base\InvalidCallException;
 
@@ -32,7 +32,7 @@ use ActiveRecord\base\InvalidCallException;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-abstract class Schema extends Object
+abstract class Schema extends BaseObject
 {
     // The following are the supported abstract column data types.
     const TYPE_PK = 'pk';
